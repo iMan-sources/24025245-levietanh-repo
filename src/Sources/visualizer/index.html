@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UML Network Graph Visualizer</title>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+
+        #header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        #header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        #controls {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .file-label {
+            padding: 8px 16px;
+            background: #48bb78;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .file-label:hover {
+            background: #38a169;
+        }
+
+        #stats {
+            margin-left: auto;
+            padding: 8px 16px;
+            background: #edf2f7;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        #cy {
+            width: 100%;
+            height: calc(100vh - 160px);
+            background: white;
+        }
+
+        #legend {
+            position: absolute;
+            top: 160px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 250px;
+            font-size: 13px;
+        }
+
+        #legend h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            gap: 10px;
+        }
+
+        .legend-shape {
+            width: 30px;
+            height: 20px;
+            border: 2px solid #2d3748;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            color: #4a5568;
+        }
+
+        #info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 350px;
+            font-size: 13px;
+            display: none;
+        }
+
+        #info-panel h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        #info-panel .info-item {
+            margin: 6px 0;
+            color: #4a5568;
+        }
+
+        #info-panel .info-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>UML Network Graph Visualizer</h1>
+        <p>Interactive visualization of PlantUML class diagrams - Click on classes to expand/collapse members</p>
+    </div>
+
+    <div id="controls">
+        <div class="control-group">
+            <label for="file-input" class="file-label">Load JSON</label>
+            <input type="file" id="file-input" accept=".json">
+        </div>
+        <button id="fit-btn">Fit to Screen</button>
+        <button id="collapse-all-btn">Collapse All</button>
+        <button id="expand-all-btn">Expand All</button>
+        <button id="reset-layout-btn">Reset Layout</button>
+        <div id="stats">No graph loaded</div>
+    </div>
+
+    <div id="cy"></div>
+
+    <div id="legend">
+        <h3>Node Types</h3>
+        <div class="legend-item">
+            <div class="legend-shape" style="background: #4299e1; border-radius: 4px;"></div>
+            <span class="legend-label">Class</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-shape" style="background: #9f7aea; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);"></div>
+            <span class="legend-label">Enumeration</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-shape" style="background: #48bb78; border-radius: 50%;"></div>
+            <span class="legend-label">Attribute</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-shape" style="background: #ed8936; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"></div>
+            <span class="legend-label">Operation</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-shape" style="background: #d6bcfa; border-radius: 50%; width: 15px; height: 15px;"></div>
+            <span class="legend-label">EnumLiteral</span>
+        </div>
+        <hr style="margin: 12px 0; border: none; border-top: 1px solid #e2e8f0;">
+        <h3>Edge Types</h3>
+        <div class="legend-item">
+            <div style="width: 30px; height: 2px; background: #2d3748;"></div>
+            <span class="legend-label">Association</span>
+        </div>
+        <div class="legend-item">
+            <div style="width: 30px; height: 2px; border-top: 2px dashed #2d3748;"></div>
+            <span class="legend-label">Realization</span>
+        </div>
+        <div class="legend-item">
+            <div style="width: 30px; height: 2px; background: #718096;"></div>
+            <span class="legend-label">Generalization</span>
+        </div>
+    </div>
+
+    <div id="info-panel"></div>
+
+    <script>
+        let cy;
+        let graphData = null;
+        let expandedClasses = new Set();
+
+        // Initialize Cytoscape
+        function initCytoscape() {
+            cy = cytoscape({
+                container: document.getElementById('cy'),
+                style: [
+                    // Base node styles
+                    {
+                        selector: 'node',
+                        style: {
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'font-size': '12px',
+                            'font-weight': '500',
+                            'color': '#2d3748',
+                            'text-wrap': 'wrap',
+                            'text-max-width': '120px',
+                            'border-width': 2,
+                            'border-color': '#2d3748'
+                        }
+                    },
+                    // Class nodes
+                    {
+                        selector: 'node[nodeType="Class"]',
+                        style: {
+                            'shape': 'roundrectangle',
+                            'background-color': '#4299e1',
+                            'width': 100,
+                            'height': 50,
+                            'font-size': '14px',
+                            'font-weight': '600',
+                            'color': 'white',
+                            'border-color': '#2c5282'
+                        }
+                    },
+                    // Enumeration nodes
+                    {
+                        selector: 'node[nodeType="Enumeration"]',
+                        style: {
+                            'shape': 'hexagon',
+                            'background-color': '#9f7aea',
+                            'width': 100,
+                            'height': 50,
+                            'font-size': '14px',
+                            'font-weight': '600',
+                            'color': 'white',
+                            'border-color': '#6b46c1'
+                        }
+                    },
+                    // Attribute nodes
+                    {
+                        selector: 'node[nodeType="Attribute"]',
+                        style: {
+                            'shape': 'ellipse',
+                            'background-color': '#48bb78',
+                            'width': 80,
+                            'height': 40,
+                            'font-size': '11px',
+                            'color': 'white',
+                            'border-color': '#2f855a'
+                        }
+                    },
+                    // Operation nodes
+                    {
+                        selector: 'node[nodeType="Operation"]',
+                        style: {
+                            'shape': 'diamond',
+                            'background-color': '#ed8936',
+                            'width': 80,
+                            'height': 80,
+                            'font-size': '11px',
+                            'color': 'white',
+                            'border-color': '#c05621'
+                        }
+                    },
+                    // EnumLiteral nodes
+                    {
+                        selector: 'node[nodeType="EnumLiteral"]',
+                        style: {
+                            'shape': 'ellipse',
+                            'background-color': '#d6bcfa',
+                            'width': 60,
+                            'height': 30,
+                            'font-size': '10px',
+                            'color': '#553c9a',
+                            'border-color': '#9f7aea'
+                        }
+                    },
+                    // AssociationClass nodes
+                    {
+                        selector: 'node[nodeType="AssociationClass"]',
+                        style: {
+                            'shape': 'roundrectangle',
+                            'background-color': '#4fd1c5',
+                            'width': 100,
+                            'height': 50,
+                            'font-size': '14px',
+                            'font-weight': '600',
+                            'color': 'white',
+                            'border-color': '#2c7a7b',
+                            'border-style': 'dashed'
+                        }
+                    },
+                    // Expanded state indicator
+                    {
+                        selector: 'node.expanded',
+                        style: {
+                            'border-width': 4,
+                            'border-color': '#f56565'
+                        }
+                    },
+                    // Hidden nodes
+                    {
+                        selector: 'node.hidden',
+                        style: {
+                            'display': 'none'
+                        }
+                    },
+                    // Base edge styles
+                    {
+                        selector: 'edge',
+                        style: {
+                            'curve-style': 'bezier',
+                            'width': 2,
+                            'line-color': '#2d3748',
+                            'target-arrow-color': '#2d3748',
+                            'label': 'data(label)',
+                            'font-size': '10px',
+                            'color': '#4a5568',
+                            'text-rotation': 'autorotate',
+                            'text-margin-y': -10,
+                            'text-background-color': 'white',
+                            'text-background-opacity': 0.8,
+                            'text-background-padding': '3px'
+                        }
+                    },
+                    // Association edges
+                    {
+                        selector: 'edge[edgeType="ASSOC"]',
+                        style: {
+                            'line-color': '#2d3748',
+                            'target-arrow-shape': 'triangle',
+                            'target-arrow-color': '#2d3748',
+                            'width': 2
+                        }
+                    },
+                    // Bidirectional associations
+                    {
+                        selector: 'edge[edgeType="ASSOC"][isBidirectional]',
+                        style: {
+                            'source-arrow-shape': 'triangle',
+                            'source-arrow-color': '#2d3748'
+                        }
+                    },
+                    // Generalization edges
+                    {
+                        selector: 'edge[edgeType="GENERALIZES"]',
+                        style: {
+                            'line-color': '#718096',
+                            'target-arrow-shape': 'triangle',
+                            'target-arrow-color': '#718096',
+                            'target-arrow-fill': 'hollow',
+                            'width': 2
+                        }
+                    },
+                    // Realization edges
+                    {
+                        selector: 'edge[edgeType="REALIZES"]',
+                        style: {
+                            'line-style': 'dashed',
+                            'line-color': '#718096',
+                            'target-arrow-shape': 'triangle',
+                            'target-arrow-color': '#718096',
+                            'target-arrow-fill': 'hollow',
+                            'width': 2
+                        }
+                    },
+                    // Ownership edges (OWNS_ATTR, OWNS_OP, HAS_LITERAL)
+                    {
+                        selector: 'edge[edgeType="OWNS_ATTR"], edge[edgeType="OWNS_OP"], edge[edgeType="HAS_LITERAL"], edge[edgeType="HAS_TYPE"]',
+                        style: {
+                            'line-style': 'dotted',
+                            'line-color': '#a0aec0',
+                            'width': 1.5,
+                            'target-arrow-shape': 'none'
+                        }
+                    },
+                    // Hidden edges
+                    {
+                        selector: 'edge.hidden',
+                        style: {
+                            'display': 'none'
+                        }
+                    },
+                    // Highlighted elements
+                    {
+                        selector: ':selected',
+                        style: {
+                            'border-width': 3,
+                            'border-color': '#f56565'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'cose',
+                    animate: true,
+                    animationDuration: 500
+                },
+                wheelSensitivity: 0.2
+            });
+
+            // Add click event for expand/collapse
+            cy.on('tap', 'node', function(evt) {
+                const node = evt.target;
+                const nodeType = node.data('nodeType');
+                
+                if (nodeType === 'Class' || nodeType === 'Enumeration' || nodeType === 'AssociationClass') {
+                    toggleExpand(node.id());
+                }
+                
+                showNodeInfo(node);
+            });
+
+            // Clear info panel when clicking on background
+            cy.on('tap', function(evt) {
+                if (evt.target === cy) {
+                    document.getElementById('info-panel').style.display = 'none';
+                }
+            });
+        }
+
+        // Load graph data
+        function loadGraphData(data) {
+            graphData = data;
+            expandedClasses.clear();
+            
+            const elements = [];
+            
+            // Process nodes
+            if (data.nodes) {
+                data.nodes.forEach(node => {
+                    const attrs = node.attributes || {};
+                    const nodeType = attrs.type || 'Unknown';
+                    const nodeName = attrs.name || node.id;
+                    
+                    // Determine if node should be initially hidden
+                    const isChildNode = nodeType === 'Attribute' || nodeType === 'Operation' || nodeType === 'EnumLiteral';
+                    
+                    elements.push({
+                        group: 'nodes',
+                        data: {
+                            id: node.id,
+                            label: nodeName,
+                            nodeType: nodeType,
+                            attributes: attrs
+                        },
+                        classes: isChildNode ? 'hidden' : ''
+                    });
+                });
+            }
+            
+            // Process edges
+            if (data.edges) {
+                data.edges.forEach(edge => {
+                    const attrs = edge.attributes || {};
+                    const edgeType = attrs.type || 'Unknown';
+                    
+                    // Build edge label
+                    let label = '';
+                    if (edgeType === 'ASSOC') {
+                        label = buildAssociationLabel(attrs);
+                    } else if (edgeType === 'GENERALIZES') {
+                        label = 'extends';
+                    } else if (edgeType === 'REALIZES') {
+                        label = 'implements';
+                    }
+                    
+                    // Check if it's bidirectional
+                    const isBidirectional = checkBidirectional(edge, data.edges);
+                    
+                    // Determine if edge should be initially hidden
+                    const isOwnershipEdge = edgeType === 'OWNS_ATTR' || edgeType === 'OWNS_OP' || 
+                                           edgeType === 'HAS_LITERAL' || edgeType === 'HAS_TYPE';
+                    
+                    elements.push({
+                        group: 'edges',
+                        data: {
+                            id: `${edge.source}-${edge.destination}-${edge.key}`,
+                            source: edge.source,
+                            target: edge.destination,
+                            label: label,
+                            edgeType: edgeType,
+                            isBidirectional: isBidirectional,
+                            attributes: attrs
+                        },
+                        classes: isOwnershipEdge ? 'hidden' : ''
+                    });
+                });
+            }
+            
+            // Load into Cytoscape
+            cy.elements().remove();
+            cy.add(elements);
+            
+            // Apply layout
+            applyLayout();
+            
+            // Update stats
+            updateStats();
+        }
+
+        // Build association label with full details
+        function buildAssociationLabel(attrs) {
+            const roleSrc = attrs.roleSrc || '';
+            const roleDst = attrs.roleDst || '';
+            const multSrc = attrs.multSrc || '';
+            const multDst = attrs.multDst || '';
+            const aggKind = attrs.aggKind || 'none';
+            const customLabel = attrs.label || '';
+            
+            let parts = [];
+            
+            if (customLabel) {
+                parts.push(customLabel);
+            }
+            
+            if (roleSrc) {
+                parts.push(`${roleSrc}[${multSrc}]`);
+            }
+            
+            if (roleDst) {
+                parts.push(`${roleDst}[${multDst}]`);
+            }
+            
+            let label = parts.join(' <-> ');
+            
+            // Add aggregation indicator
+            if (aggKind === 'shared') {
+                label = '◇ ' + label;
+            } else if (aggKind === 'composite') {
+                label = '◆ ' + label;
+            }
+            
+            return label || 'assoc';
+        }
+
+        // Check if edge is bidirectional
+        function checkBidirectional(edge, allEdges) {
+            // Check if there's a reverse edge with same key
+            return allEdges.some(e => 
+                e.source === edge.destination && 
+                e.destination === edge.source && 
+                e.key === edge.key
+            );
+        }
+
+        // Toggle expand/collapse for a class
+        function toggleExpand(nodeId) {
+            if (expandedClasses.has(nodeId)) {
+                collapseNode(nodeId);
+            } else {
+                expandNode(nodeId);
+            }
+        }
+
+        // Expand a node to show its members
+        function expandNode(nodeId) {
+            expandedClasses.add(nodeId);
+            
+            // Find and show connected member nodes
+            const connectedEdges = cy.edges(`[source="${nodeId}"]`);
+            connectedEdges.forEach(edge => {
+                const edgeType = edge.data('edgeType');
+                if (edgeType === 'OWNS_ATTR' || edgeType === 'OWNS_OP' || edgeType === 'HAS_LITERAL') {
+                    const targetNode = cy.getElementById(edge.data('target'));
+                    targetNode.removeClass('hidden');
+                    edge.removeClass('hidden');
+                }
+            });
+            
+            // Mark node as expanded
+            cy.getElementById(nodeId).addClass('expanded');
+            
+            // Reapply layout
+            applyLayout();
+        }
+
+        // Collapse a node to hide its members
+        function collapseNode(nodeId) {
+            expandedClasses.delete(nodeId);
+            
+            // Find and hide connected member nodes
+            const connectedEdges = cy.edges(`[source="${nodeId}"]`);
+            connectedEdges.forEach(edge => {
+                const edgeType = edge.data('edgeType');
+                if (edgeType === 'OWNS_ATTR' || edgeType === 'OWNS_OP' || edgeType === 'HAS_LITERAL') {
+                    const targetNode = cy.getElementById(edge.data('target'));
+                    targetNode.addClass('hidden');
+                    edge.addClass('hidden');
+                }
+            });
+            
+            // Remove expanded mark
+            cy.getElementById(nodeId).removeClass('expanded');
+            
+            // Reapply layout
+            applyLayout();
+        }
+
+        // Expand all classes
+        function expandAll() {
+            cy.nodes('[nodeType="Class"], [nodeType="Enumeration"], [nodeType="AssociationClass"]').forEach(node => {
+                if (!expandedClasses.has(node.id())) {
+                    expandNode(node.id());
+                }
+            });
+        }
+
+        // Collapse all classes
+        function collapseAll() {
+            Array.from(expandedClasses).forEach(nodeId => {
+                collapseNode(nodeId);
+            });
+        }
+
+        // Apply layout
+        function applyLayout() {
+            const visibleElements = cy.elements().not('.hidden');
+            
+            visibleElements.layout({
+                name: 'cose',
+                animate: true,
+                animationDuration: 300,
+                nodeRepulsion: 8000,
+                idealEdgeLength: 100,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }).run();
+        }
+
+        // Show node information
+        function showNodeInfo(node) {
+            const infoPanel = document.getElementById('info-panel');
+            const attrs = node.data('attributes') || {};
+            const nodeType = node.data('nodeType');
+            
+            let html = `<h3>${node.data('label')}</h3>`;
+            html += `<div class="info-item"><span class="info-label">Type:</span> ${nodeType}</div>`;
+            
+            if (attrs.isAbstract) {
+                html += `<div class="info-item"><span class="info-label">Abstract:</span> Yes</div>`;
+            }
+            
+            if (attrs.isInterface) {
+                html += `<div class="info-item"><span class="info-label">Interface:</span> Yes</div>`;
+            }
+            
+            if (attrs.stereotypes && attrs.stereotypes.length > 0) {
+                html += `<div class="info-item"><span class="info-label">Stereotypes:</span> ${attrs.stereotypes.join(', ')}</div>`;
+            }
+            
+            if (attrs.attrType) {
+                html += `<div class="info-item"><span class="info-label">Attribute Type:</span> ${attrs.attrType}</div>`;
+            }
+            
+            if (attrs.visibility) {
+                html += `<div class="info-item"><span class="info-label">Visibility:</span> ${attrs.visibility}</div>`;
+            }
+            
+            if (attrs.returnType) {
+                html += `<div class="info-item"><span class="info-label">Return Type:</span> ${attrs.returnType}</div>`;
+            }
+            
+            if (attrs.params && attrs.params.length > 0) {
+                html += `<div class="info-item"><span class="info-label">Parameters:</span><br>`;
+                attrs.params.forEach(param => {
+                    html += `&nbsp;&nbsp;- ${param.name}${param.type ? ': ' + param.type : ''}<br>`;
+                });
+                html += `</div>`;
+            }
+            
+            infoPanel.innerHTML = html;
+            infoPanel.style.display = 'block';
+        }
+
+        // Update statistics
+        function updateStats() {
+            const stats = document.getElementById('stats');
+            const nodeCount = cy.nodes().length;
+            const edgeCount = cy.edges().length;
+            const visibleNodes = cy.nodes().not('.hidden').length;
+            
+            stats.textContent = `Nodes: ${visibleNodes}/${nodeCount} | Edges: ${edgeCount}`;
+        }
+
+        // File input handler
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        loadGraphData(data);
+                    } catch (error) {
+                        alert('Error parsing JSON file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Control button handlers
+        document.getElementById('fit-btn').addEventListener('click', function() {
+            cy.fit(cy.elements().not('.hidden'), 50);
+        });
+
+        document.getElementById('collapse-all-btn').addEventListener('click', collapseAll);
+        document.getElementById('expand-all-btn').addEventListener('click', expandAll);
+        document.getElementById('reset-layout-btn').addEventListener('click', applyLayout);
+
+        // Initialize
+        initCytoscape();
+
+        // Try to load default data if available
+        fetch('graph-data.json')
+            .then(response => response.json())
+            .then(data => {
+                loadGraphData(data);
+            })
+            .catch(error => {
+                console.log('No default graph-data.json found. Please load a JSON file.');
+            });
+    </script>
+</body>
+</html>

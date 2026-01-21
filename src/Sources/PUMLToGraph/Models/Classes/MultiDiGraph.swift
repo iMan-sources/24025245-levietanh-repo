@@ -267,4 +267,101 @@ extension MultiDiGraph {
     }
 }
 
+// MARK: - JSON Export
+extension MultiDiGraph {
+    /// Convert graph to JSON-serializable dictionary
+    ///
+    /// Returns:
+    ///     Dictionary containing nodes and edges arrays
+    ///
+    /// Example:
+    ///     let jsonDict = graph.toJSON()
+    ///     let jsonData = try JSONSerialization.data(withJSONObject: jsonDict)
+    public func toJSON() -> [String: Any] {
+        // Convert nodes to JSON-compatible format
+        let nodesArray = allNodes().map { node -> [String: Any] in
+            var nodeDict: [String: Any] = ["id": node.id]
+            
+            // Convert attributes to JSON-compatible format
+            var sanitizedAttributes: [String: Any] = [:]
+            for (key, value) in node.attributes {
+                sanitizedAttributes[key] = sanitizeValue(value)
+            }
+            nodeDict["attributes"] = sanitizedAttributes
+            
+            return nodeDict
+        }
+        
+        // Convert edges to JSON-compatible format
+        let edgesArray = allEdges().map { edge -> [String: Any] in
+            var edgeDict: [String: Any] = [
+                "source": edge.source,
+                "destination": edge.destination,
+                "key": edge.key
+            ]
+            
+            // Convert attributes to JSON-compatible format
+            var sanitizedAttributes: [String: Any] = [:]
+            for (key, value) in edge.attributes {
+                sanitizedAttributes[key] = sanitizeValue(value)
+            }
+            edgeDict["attributes"] = sanitizedAttributes
+            
+            return edgeDict
+        }
+        
+        return [
+            "nodes": nodesArray,
+            "edges": edgesArray,
+            "metadata": sanitizeValue(metadata) as? [String: Any] ?? [:]
+        ]
+    }
+    
+    /// Sanitize values to be JSON-compatible
+    ///
+    /// Args:
+    ///     value: Any value to sanitize
+    ///
+    /// Returns:
+    ///     JSON-compatible value
+    private func sanitizeValue(_ value: Any) -> Any {
+        if let dict = value as? [String: Any] {
+            var sanitized: [String: Any] = [:]
+            for (key, val) in dict {
+                sanitized[key] = sanitizeValue(val)
+            }
+            return sanitized
+        } else if let array = value as? [Any] {
+            return array.map { sanitizeValue($0) }
+        } else if let string = value as? String {
+            return string
+        } else if let number = value as? NSNumber {
+            return number
+        } else if let bool = value as? Bool {
+            return bool
+        } else if value is NSNull {
+            return NSNull()
+        } else {
+            // Convert any other type to string representation
+            return String(describing: value)
+        }
+    }
+    
+    /// Export graph to JSON file
+    ///
+    /// Args:
+    ///     filepath: Path to output JSON file
+    ///
+    /// Throws:
+    ///     Error if file cannot be written
+    ///
+    /// Example:
+    ///     try graph.exportToJSON(filepath: "output/graph.json")
+    public func exportToJSON(filepath: String) throws {
+        let jsonDict = toJSON()
+        let jsonData = try JSONSerialization.data(withJSONObject: jsonDict, options: .prettyPrinted)
+        try jsonData.write(to: URL(fileURLWithPath: filepath))
+    }
+}
+
 

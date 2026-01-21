@@ -71,6 +71,35 @@ func main() {
             let label = edge.attributes["label"] as? String ?? edgeType
             print("    - [\(edge.source)] --[\(label)]-> [\(edge.destination)]")
         }
+        print()
+        
+        // Export graph to JSON for visualizer
+        print("📤 Exporting graph data...")
+        let visualizerDir = (currentDir as NSString).appendingPathComponent("visualizer")
+        let jsonOutputPath = (visualizerDir as NSString).appendingPathComponent("graph-data.json")
+        
+        do {
+            try graph.exportToJSON(filepath: jsonOutputPath)
+            print("✓ Graph exported to: \(jsonOutputPath)")
+            print()
+            
+            // Show visualizer instructions
+            print("🌐 Visualizer Instructions:")
+            print("  1. Open the visualizer:")
+            print("     file://\(visualizerDir)/index.html")
+            print()
+            print("  2. The graph data has been automatically loaded")
+            print()
+            print("  3. Interaction:")
+            print("     - Click on Class/Enum nodes to expand/collapse members")
+            print("     - Use the control buttons to manage the view")
+            print("     - Click on nodes to see detailed information")
+            print()
+            
+        } catch {
+            print("⚠️  Warning: Could not export JSON: \(error)")
+            print()
+        }
         
     } catch {
         print("❌ Error: \(error)")
