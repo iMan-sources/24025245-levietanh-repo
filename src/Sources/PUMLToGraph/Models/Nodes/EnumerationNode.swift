@@ -22,16 +22,21 @@ public struct EnumerationNodeData: NodeData {
     /// Semantic description
     public var semanticDesc: String
     
+    /// Normalized text components for multi-vector mode (each component is a separate sentence)
+    /// Components include: core identity, subtypes (if any), and each association
+    public var normalizedText: [String]
+    
     /// Node type (always .enumeration)
     public var nodeType: NodeType {
         return .enumeration
     }
     
-    public init(id: String, name: String, stereotypes: [String] = [], semanticDesc: String = "") {
+    public init(id: String, name: String, stereotypes: [String] = [], semanticDesc: String = "", normalizedText: [String] = []) {
         self.id = id
         self.name = name
         self.stereotypes = stereotypes
         self.semanticDesc = semanticDesc
+        self.normalizedText = normalizedText
     }
     
     public func toDictionary() -> [String: Any] {
@@ -39,7 +44,8 @@ public struct EnumerationNodeData: NodeData {
             "type": nodeType.rawValue,
             "name": name,
             "stereotypes": stereotypes,
-            "semantic_desc": semanticDesc
+            "semantic_desc": semanticDesc,
+            "normalized_text": normalizedText
         ]
     }
 }

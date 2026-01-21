@@ -91,22 +91,30 @@ public class GraphBuilder {
     ///     classData: ParsedClass structure
     private func addClassNode(classData: ParsedClass) {
         let nodeId = classData.name
-        let nodeType = classData.type
         
         // Generate semantic description
         let semanticDesc = semanticGenerator.generateClassDesc(classData: classData)
         
-        // Create node attributes
-        let attributes: [String: Any] = [
-            "type": nodeType,
-            "name": classData.name,
-            "isAbstract": classData.isAbstract,
-            "isInterface": classData.isInterface,
-            "stereotypes": classData.stereotypes,
-            "semantic_desc": semanticDesc
-        ]
-        
-        graph.addNode(nodeId, attributes: attributes)
+        // Use typed model based on class type
+        if classData.type == "Enumeration" {
+            let enumNode = EnumerationNodeData(
+                id: nodeId,
+                name: classData.name,
+                stereotypes: classData.stereotypes,
+                semanticDesc: semanticDesc
+            )
+            graph.addNode(nodeId, attributes: enumNode.toDictionary())
+        } else {
+            let classNode = ClassNodeData(
+                id: nodeId,
+                name: classData.name,
+                isAbstract: classData.isAbstract,
+                isInterface: classData.isInterface,
+                stereotypes: classData.stereotypes,
+                semanticDesc: semanticDesc
+            )
+            graph.addNode(nodeId, attributes: classNode.toDictionary())
+        }
     }
     
     // MARK: - Add Attribute Node
@@ -122,39 +130,30 @@ public class GraphBuilder {
         // Generate semantic description
         let semanticDesc = semanticGenerator.generateAttributeDesc(attr: attr, context: owner)
         
-        // Create node attributes
-        var attributes: [String: Any] = [
-            "type": "Attribute",
-            "name": attr.name,
-            "isDerived": attr.isDerived,
-            "owner": owner,
-            "semantic_desc": semanticDesc
-        ]
+        // Create typed attribute node
+        let attrNode = AttributeNodeData(
+            id: attrId,
+            name: attr.name,
+            attrType: attr.type,
+            visibility: attr.visibility,
+            isDerived: attr.isDerived,
+            owner: owner,
+            properties: attr.properties,
+            semanticDesc: semanticDesc
+        )
+        graph.addNode(attrId, attributes: attrNode.toDictionary())
         
-        if let attrType = attr.type {
-            attributes["attrType"] = attrType
-        }
-        if let visibility = attr.visibility {
-            attributes["visibility"] = visibility
-        }
-        
-        // Merge properties
-        for (key, value) in attr.properties {
-            attributes[key] = value
-        }
-        
-        // Add attribute node
-        graph.addNode(attrId, attributes: attributes)
-        
-        // Add OWNS_ATTR edge: Class → Attribute
-        graph.addEdge(from: owner, to: attrId, attributes: ["type": EdgeType.ownsAttr.rawValue])
+        // Add OWNS_ATTR edge: Class → Attribute using typed edge
+        let ownsAttrEdge = OwnsAttrEdge()
+        graph.addEdge(from: owner, to: attrId, attributes: ownsAttrEdge.toDictionary())
         
         // Add HAS_TYPE edge if attribute type is a Class or Enumeration in the graph
         if let attrType = attr.type, graph.hasNode(attrType) {
             if let typeNode = graph.getNode(attrType),
                let nodeType = typeNode.attributes["type"] as? String,
                nodeType == "Class" || nodeType == "Enumeration" {
-                graph.addEdge(from: attrId, to: attrType, attributes: ["type": EdgeType.hasType.rawValue])
+                let hasTypeEdge = HasTypeEdge()
+                graph.addEdge(from: attrId, to: attrType, attributes: hasTypeEdge.toDictionary())
             }
         }
     }
@@ -172,37 +171,25 @@ public class GraphBuilder {
         // Generate semantic description
         let semanticDesc = semanticGenerator.generateOperationDesc(op: op, context: owner)
         
-        // Convert params to dictionary array
-        let paramsArray = op.params.map { param -> [String: Any] in
-            var dict: [String: Any] = ["name": param.name]
-            if let type = param.type {
-                dict["type"] = type
-            }
-            return dict
-        }
+        // Convert ParsedParameter to OperationParameter
+        let params = op.params.map { OperationParameter(name: $0.name, type: $0.type) }
         
-        // Create node attributes
-        var attributes: [String: Any] = [
-            "type": "Operation",
-            "name": op.name,
-            "params": paramsArray,
-            "isDerived": op.isDerived,
-            "owner": owner,
-            "semantic_desc": semanticDesc
-        ]
+        // Create typed operation node
+        let opNode = OperationNodeData(
+            id: opId,
+            name: op.name,
+            params: params,
+            returnType: op.returnType,
+            visibility: op.visibility,
+            isDerived: op.isDerived,
+            owner: owner,
+            semanticDesc: semanticDesc
+        )
+        graph.addNode(opId, attributes: opNode.toDictionary())
         
-        if let returnType = op.returnType {
-            attributes["returnType"] = returnType
-        }
-        if let visibility = op.visibility {
-            attributes["visibility"] = visibility
-        }
-        
-        // Add operation node
-        graph.addNode(opId, attributes: attributes)
-        
-        // Add OWNS_OP edge: Class → Operation
-        graph.addEdge(from: owner, to: opId, attributes: ["type": EdgeType.ownsOp.rawValue])
+        // Add OWNS_OP edge: Class → Operation using typed edge
+        let ownsOpEdge = OwnsOpEdge()
+        graph.addEdge(from: owner, to: opId, attributes: ownsOpEdge.toDictionary())
     }
     
     // MARK: - Add Enum Literal Node
@@ -215,17 +202,13 @@ public class GraphBuilder {
     private func addEnumLiteralNode(lit: ParsedEnumLiteral, enumName: String) {
         let litId = lit.id
         
-        let attributes: [String: Any] = [
-            "type": "EnumLiteral",
-            "name": lit.name,
-            "enum": enumName
-        ]
+        // Create typed enum literal node
+        let litNode = EnumLiteralNodeData(id: litId, name: lit.name, enumName: enumName)
+        graph.addNode(litId, attributes: litNode.toDictionary())
         
-        // Add literal node
-        graph.addNode(litId, attributes: attributes)
-        
-        // Add HAS_LITERAL edge: Enumeration → EnumLiteral
-        graph.addEdge(from: enumName, to: litId, attributes: ["type": EdgeType.hasLiteral.rawValue])
+        // Add HAS_LITERAL edge: Enumeration → EnumLiteral using typed edge
+        let hasLiteralEdge = HasLiteralEdge()
+        graph.addEdge(from: enumName, to: litId, attributes: hasLiteralEdge.toDictionary())
     }
     
     // MARK: - Add Association Edges
@@ -240,12 +223,8 @@ public class GraphBuilder {
         let edgeId = assoc.id
         let navigability = assoc.navigability
         
-        // Base edge attributes
-        let baseAttributes: [String: Any] = [
-            "type": EdgeType.assoc.rawValue,
-            "id": edgeId,
-            "aggKind": assoc.aggKind
-        ]
+        // Parse aggregation kind
+        let aggKind = AggregationKind(rawValue: assoc.aggKind) ?? .none
         
         if navigability == "bi" {
             // Bidirectional: Create two edges
@@ -260,15 +239,17 @@ public class GraphBuilder {
                 isReverse: false
             )
             
-            var attrsFwd = baseAttributes
-            attrsFwd["roleSrc"] = assoc.roleA
-            attrsFwd["multSrc"] = assoc.multA
-            attrsFwd["roleDst"] = assoc.roleB
-            attrsFwd["multDst"] = assoc.multB
-            if let label = assoc.label {
-                attrsFwd["label"] = label
-            }
-            attrsFwd["semantic_desc"] = semanticDescFwd
+            let assocEdgeFwd = AssociationEdge(
+                id: edgeId,
+                aggKind: aggKind,
+                navigability: .bidirectional,
+                roleSrc: assoc.roleA,
+                multSrc: assoc.multA,
+                roleDst: assoc.roleB,
+                multDst: assoc.multB,
+                label: assoc.label,
+                semanticDesc: semanticDescFwd
+            )
             
             // Reverse direction: B → A
             let semanticDescRev = semanticGenerator.generateAssociationDesc(
@@ -280,23 +261,25 @@ public class GraphBuilder {
                 isReverse: true
             )
             
-            var attrsRev = baseAttributes
-            attrsRev["roleSrc"] = assoc.roleB
-            attrsRev["multSrc"] = assoc.multB
-            attrsRev["roleDst"] = assoc.roleA
-            attrsRev["multDst"] = assoc.multA
-            if let label = assoc.label {
-                attrsRev["label"] = label
-            }
-            attrsRev["semantic_desc"] = semanticDescRev
+            let assocEdgeRev = AssociationEdge(
+                id: edgeId,
+                aggKind: aggKind,
+                navigability: .bidirectional,
+                roleSrc: assoc.roleB,
+                multSrc: assoc.multB,
+                roleDst: assoc.roleA,
+                multDst: assoc.multA,
+                label: assoc.label,
+                semanticDesc: semanticDescRev
+            )
             
             // Handle self-referential edges with different keys
             if classA == classB {
-                graph.addEdge(from: classA, to: classB, key: "\(edgeId)_fwd", attributes: attrsFwd)
-                graph.addEdge(from: classB, to: classA, key: "\(edgeId)_rev", attributes: attrsRev)
+                graph.addEdge(from: classA, to: classB, key: "\(edgeId)_fwd", attributes: assocEdgeFwd.toDictionary())
+                graph.addEdge(from: classB, to: classA, key: "\(edgeId)_rev", attributes: assocEdgeRev.toDictionary())
             } else {
-                graph.addEdge(from: classA, to: classB, key: edgeId, attributes: attrsFwd)
-                graph.addEdge(from: classB, to: classA, key: edgeId, attributes: attrsRev)
+                graph.addEdge(from: classA, to: classB, key: edgeId, attributes: assocEdgeFwd.toDictionary())
+                graph.addEdge(from: classB, to: classA, key: edgeId, attributes: assocEdgeRev.toDictionary())
             }
             
         } else if navigability == "src→dst" {
@@ -310,17 +293,19 @@ public class GraphBuilder {
                 isReverse: false
             )
             
-            var attrs = baseAttributes
-            attrs["roleSrc"] = assoc.roleA
-            attrs["multSrc"] = assoc.multA
-            attrs["roleDst"] = assoc.roleB
-            attrs["multDst"] = assoc.multB
-            if let label = assoc.label {
-                attrs["label"] = label
-            }
-            attrs["semantic_desc"] = semanticDesc
+            let assocEdge = AssociationEdge(
+                id: edgeId,
+                aggKind: aggKind,
+                navigability: .sourceToDestination,
+                roleSrc: assoc.roleA,
+                multSrc: assoc.multA,
+                roleDst: assoc.roleB,
+                multDst: assoc.multB,
+                label: assoc.label,
+                semanticDesc: semanticDesc
+            )
             
-            graph.addEdge(from: classA, to: classB, key: edgeId, attributes: attrs)
+            graph.addEdge(from: classA, to: classB, key: edgeId, attributes: assocEdge.toDictionary())
             
         } else if navigability == "dst→src" {
             // Destination to source: B → A
@@ -333,17 +318,19 @@ public class GraphBuilder {
                 isReverse: true
             )
             
-            var attrs = baseAttributes
-            attrs["roleSrc"] = assoc.roleB
-            attrs["multSrc"] = assoc.multB
-            attrs["roleDst"] = assoc.roleA
-            attrs["multDst"] = assoc.multA
-            if let label = assoc.label {
-                attrs["label"] = label
-            }
-            attrs["semantic_desc"] = semanticDesc
+            let assocEdge = AssociationEdge(
+                id: edgeId,
+                aggKind: aggKind,
+                navigability: .destinationToSource,
+                roleSrc: assoc.roleB,
+                multSrc: assoc.multB,
+                roleDst: assoc.roleA,
+                multDst: assoc.multA,
+                label: assoc.label,
+                semanticDesc: semanticDesc
+            )
             
-            graph.addEdge(from: classB, to: classA, key: edgeId, attributes: attrs)
+            graph.addEdge(from: classB, to: classA, key: edgeId, attributes: assocEdge.toDictionary())
         }
     }
     
@@ -360,13 +347,11 @@ public class GraphBuilder {
         // Generate semantic description
         let semanticDesc = semanticGenerator.generateGeneralizationDesc(child: child, parent: parent)
         
-        let attributes: [String: Any] = [
-            "type": EdgeType.generalizes.rawValue,
-            "semantic_desc": semanticDesc
-        ]
+        // Create typed generalization edge
+        let genEdge = GeneralizationEdge(semanticDesc: semanticDesc)
         
         // Add edge from child to parent
-        graph.addEdge(from: child, to: parent, attributes: attributes)
+        graph.addEdge(from: child, to: parent, attributes: genEdge.toDictionary())
     }
     
     // MARK: - Add Realization Edge
@@ -379,12 +364,11 @@ public class GraphBuilder {
         let className = real.className
         let interfaceName = real.interfaceName
         
-        let attributes: [String: Any] = [
-            "type": EdgeType.realizes.rawValue
-        ]
+        // Create typed realization edge
+        let realEdge = RealizationEdge()
         
         // Add edge from class to interface
-        graph.addEdge(from: className, to: interfaceName, attributes: attributes)
+        graph.addEdge(from: className, to: interfaceName, attributes: realEdge.toDictionary())
     }
     
     // MARK: - Add Association Class
@@ -400,15 +384,28 @@ public class GraphBuilder {
         
         // Mark the class as AssociationClass if it exists
         if let node = graph.getNode(assocClassName) {
-            var updatedAttrs = node.attributes
-            updatedAttrs["type"] = "AssociationClass"
-            updatedAttrs["associationBetween"] = [classA, classB]
+            // Extract existing properties to create AssociationClassNodeData
+            let semanticDesc = node.attributes["semantic_desc"] as? String ?? ""
+            let stereotypes = node.attributes["stereotypes"] as? [String] ?? []
+            let isAbstract = node.attributes["isAbstract"] as? Bool ?? false
+            let isInterface = node.attributes["isInterface"] as? Bool ?? false
             
-            // Update node (remove and re-add with new attributes)
-            graph.addNode(assocClassName, attributes: updatedAttrs)
+            // Create typed AssociationClassNodeData
+            let assocClassNode = AssociationClassNodeData(
+                id: assocClassName,
+                name: assocClassName,
+                associationBetween: [classA, classB],
+                isAbstract: isAbstract,
+                isInterface: isInterface,
+                stereotypes: stereotypes,
+                semanticDesc: semanticDesc
+            )
+            
+            // Update node with typed data
+            graph.addNode(assocClassName, attributes: assocClassNode.toDictionary())
         }
         
-        // Create bidirectional associations
+        // Create bidirectional associations using typed AssociationEdge
         // A <-> AssociationClass
         let edgeIdA = "e\(graph.numberOfEdges())"
         
@@ -438,21 +435,27 @@ public class GraphBuilder {
             isReverse: true
         )
         
-        graph.addEdge(from: classA, to: assocClassName, key: edgeIdA, attributes: [
-            "type": EdgeType.assoc.rawValue,
-            "id": edgeIdA,
-            "aggKind": "none",
-            "navigability": "bi",
-            "semantic_desc": descAFwd
-        ])
+        // Create typed edges for A <-> AssociationClass
+        let assocEdgeAFwd = AssociationEdge(
+            id: edgeIdA,
+            aggKind: .none,
+            navigability: .bidirectional,
+            multSrc: "0..*",
+            multDst: "0..*",
+            semanticDesc: descAFwd
+        )
         
-        graph.addEdge(from: assocClassName, to: classA, key: edgeIdA, attributes: [
-            "type": EdgeType.assoc.rawValue,
-            "id": edgeIdA,
-            "aggKind": "none",
-            "navigability": "bi",
-            "semantic_desc": descARev
-        ])
+        let assocEdgeARev = AssociationEdge(
+            id: edgeIdA,
+            aggKind: .none,
+            navigability: .bidirectional,
+            multSrc: "0..*",
+            multDst: "0..*",
+            semanticDesc: descARev
+        )
+        
+        graph.addEdge(from: classA, to: assocClassName, key: edgeIdA, attributes: assocEdgeAFwd.toDictionary())
+        graph.addEdge(from: assocClassName, to: classA, key: edgeIdA, attributes: assocEdgeARev.toDictionary())
         
         // B <-> AssociationClass
         let edgeIdB = "e\(graph.numberOfEdges())"
@@ -482,21 +485,27 @@ public class GraphBuilder {
             isReverse: true
         )
         
-        graph.addEdge(from: classB, to: assocClassName, key: edgeIdB, attributes: [
-            "type": EdgeType.assoc.rawValue,
-            "id": edgeIdB,
-            "aggKind": "none",
-            "navigability": "bi",
-            "semantic_desc": descBFwd
-        ])
+        // Create typed edges for B <-> AssociationClass
+        let assocEdgeBFwd = AssociationEdge(
+            id: edgeIdB,
+            aggKind: .none,
+            navigability: .bidirectional,
+            multSrc: "0..*",
+            multDst: "0..*",
+            semanticDesc: descBFwd
+        )
         
-        graph.addEdge(from: assocClassName, to: classB, key: edgeIdB, attributes: [
-            "type": EdgeType.assoc.rawValue,
-            "id": edgeIdB,
-            "aggKind": "none",
-            "navigability": "bi",
-            "semantic_desc": descBRev
-        ])
+        let assocEdgeBRev = AssociationEdge(
+            id: edgeIdB,
+            aggKind: .none,
+            navigability: .bidirectional,
+            multSrc: "0..*",
+            multDst: "0..*",
+            semanticDesc: descBRev
+        )
+        
+        graph.addEdge(from: classB, to: assocClassName, key: edgeIdB, attributes: assocEdgeBFwd.toDictionary())
+        graph.addEdge(from: assocClassName, to: classB, key: edgeIdB, attributes: assocEdgeBRev.toDictionary())
     }
     
     // MARK: - Update Normalized Text

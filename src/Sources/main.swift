@@ -17,7 +17,7 @@ func main() {
         // Create converter and process the Airport.puml file
         let converter = PUMLToGraphConverter()
         let graph = try converter.convertFile(filepath: airportPath)
-        print(graph.allNodes().map({$0.attributes}))
+        print(graph.allNodes().map({$0}))
     } catch {
         print("Error: \(error.localizedDescription)")
     }
