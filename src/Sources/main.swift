@@ -17,95 +17,13 @@ func main() {
         // Create converter and process the Airport.puml file
         let converter = PUMLToGraphConverter()
         let graph = try converter.convertFile(filepath: airportPath)
-        
-        // Display results
-        print("✓ Conversion successful!")
-        print()
-        
-        // Show warnings if any
-        if let warnings = graph.metadata["warnings"] as? [String], !warnings.isEmpty {
-            print("⚠️  Warnings (\(warnings.count)):")
-            for warning in warnings {
-                print("  - \(warning)")
-            }
-            print()
-        }
-        
-        // Display graph statistics
-        print("📊 Graph Statistics:")
-        let stats = converter.getGraphStatistics(graph: graph)
-        print("  Total Nodes: \(stats["totalNodes"] ?? 0)")
-        print("  Total Edges: \(stats["totalEdges"] ?? 0)")
-        print()
-        
-        if let nodeTypeCounts = stats["nodeTypeCount"] as? [String: Int] {
-            print("  Node Types:")
-            for (type, count) in nodeTypeCounts.sorted(by: { $0.key < $1.key }) {
-                print("    - \(type): \(count)")
-            }
-            print()
-        }
-        
-        if let edgeTypeCounts = stats["edgeTypeCount"] as? [String: Int] {
-            print("  Edge Types:")
-            for (type, count) in edgeTypeCounts.sorted(by: { $0.key < $1.key }) {
-                print("    - \(type): \(count)")
-            }
-            print()
-        }
-        
-        // Display detailed graph information
-        print("🔍 Detailed Graph Information:")
-        print("  Nodes (\(graph.numberOfNodes())):")
-        let allNodes = graph.allNodes().sorted(by: { $0.id < $1.id })
-        for node in allNodes {
-            let nodeType = node.attributes["type"] as? String ?? "Unknown"
-            let nodeName = node.attributes["name"] as? String ?? node.id
-            print("    - [\(node.id)] \(nodeName) (type: \(nodeType))")
-        }
-        print()
-        
-        print("  Edges (\(graph.numberOfEdges())):")
-        for edge in graph.allEdges() {
-            let edgeType = edge.attributes["type"] as? String ?? "Unknown"
-            let label = edge.attributes["label"] as? String ?? edgeType
-            print("    - [\(edge.source)] --[\(label)]-> [\(edge.destination)]")
-        }
-        print()
-        
-        // Export graph to JSON for visualizer
-        print("📤 Exporting graph data...")
-        let visualizerDir = (currentDir as NSString).appendingPathComponent("visualizer")
-        let jsonOutputPath = (visualizerDir as NSString).appendingPathComponent("graph-data.json")
-        
-        do {
-            try graph.exportToJSON(filepath: jsonOutputPath)
-            print("✓ Graph exported to: \(jsonOutputPath)")
-            print()
-            
-            // Show visualizer instructions
-            print("🌐 Visualizer Instructions:")
-            print("  1. Open the visualizer:")
-            print("     file://\(visualizerDir)/index.html")
-            print()
-            print("  2. The graph data has been automatically loaded")
-            print()
-            print("  3. Interaction:")
-            print("     - Click on Class/Enum nodes to expand/collapse members")
-            print("     - Use the control buttons to manage the view")
-            print("     - Click on nodes to see detailed information")
-            print()
-            
-        } catch {
-            print("⚠️  Warning: Could not export JSON: \(error)")
-            print()
-        }
-        
+        print(graph.allNodes().map({$0.attributes}))
     } catch {
-        print("❌ Error: \(error)")
-        print()
-        printUsage()
+        print("Error: \(error.localizedDescription)")
     }
+    
+        
+        
 }
 
 func getSwiftVersion() -> String {

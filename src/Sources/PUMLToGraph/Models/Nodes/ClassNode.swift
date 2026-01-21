@@ -37,6 +37,10 @@ public struct ClassNodeData: NodeData {
     /// Semantic description for S-BERT vectorization
     public var semanticDesc: String
     
+    /// Normalized text components for multi-vector mode (each component is a separate sentence)
+    /// Components include: core identity, subtypes (if any), and each association
+    public var normalizedText: [String]
+    
     /// Node type (always .classNode or .enumeration)
     public var nodeType: NodeType {
         return .classNode
@@ -46,13 +50,15 @@ public struct ClassNodeData: NodeData {
                 isAbstract: Bool = false,
                 isInterface: Bool = false,
                 stereotypes: [String] = [],
-                semanticDesc: String = "") {
+                semanticDesc: String = "",
+                normalizedText: [String] = []) {
         self.id = id
         self.name = name
         self.isAbstract = isAbstract
         self.isInterface = isInterface
         self.stereotypes = stereotypes
         self.semanticDesc = semanticDesc
+        self.normalizedText = normalizedText
     }
     
     /// Convert to dictionary for graph storage
@@ -63,7 +69,8 @@ public struct ClassNodeData: NodeData {
             "isAbstract": isAbstract,
             "isInterface": isInterface,
             "stereotypes": stereotypes,
-            "semantic_desc": semanticDesc
+            "semantic_desc": semanticDesc,
+            "normalized_text": normalizedText
         ]
     }
 }

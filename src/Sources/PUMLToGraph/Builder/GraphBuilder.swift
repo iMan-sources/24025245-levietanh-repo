@@ -77,6 +77,9 @@ public class GraphBuilder {
             addAssociationClass(assocClass: assocClass)
         }
         
+        // Step 7: Update normalized text for all classes
+        updateNormalizedText()
+        
         return graph
     }
     
@@ -494,5 +497,74 @@ public class GraphBuilder {
             "navigability": "bi",
             "semantic_desc": descBRev
         ])
+    }
+    
+    // MARK: - Update Normalized Text
+    
+    /// Update normalized text for all class nodes after all edges are added
+    ///
+    /// This method computes the normalized_text array for each class node,
+    /// containing separate components for multi-vector embedding:
+    /// - Component 1: Core identity (from semantic_desc)
+    /// - Component 2: Subtypes sentence (if any children exist)
+    /// - Component 3+: Each outgoing association's semantic_desc
+    private func updateNormalizedText() {
+        // Get all Class and Enumeration nodes
+        let classNodes = graph.getNodesByType("Class") + graph.getNodesByType("Enumeration") + graph.getNodesByType("AssociationClass")
+        
+        for classNode in classNodes {
+            let nodeId = classNode.id
+            var components: [String] = []
+            
+            // Component 1: Core identity from semantic_desc
+            if let semanticDesc = classNode.attributes["semantic_desc"] as? String {
+                // Remove trailing period for consistency
+                let coreIdentity = semanticDesc.hasSuffix(".") 
+                    ? String(semanticDesc.dropLast()) 
+                    : semanticDesc
+                components.append(coreIdentity)
+            }
+            
+            // Component 2: Subtypes (children that generalize to this class)
+            // These are incoming GENERALIZES edges where this class is the parent (destination)
+            let incomingEdges = graph.getIncomingEdges(to: nodeId)
+            var subtypes: [String] = []
+            
+            for edge in incomingEdges {
+                if let edgeType = edge.attributes["type"] as? String,
+                   edgeType == EdgeType.generalizes.rawValue {
+                    // The source of a GENERALIZES edge is the child (subtype)
+                    let childName = SemanticGenerator.splitIdentifier(edge.source)
+                    subtypes.append(childName)
+                }
+            }
+            
+            if !subtypes.isEmpty {
+                let className = SemanticGenerator.splitIdentifier(nodeId)
+                let subtypesComponent = "Class \(className) has subtypes: \(subtypes.joined(separator: ", "))"
+                components.append(subtypesComponent)
+            }
+            
+            // Component 3+: Each outgoing association's semantic_desc
+            let outgoingEdges = graph.getOutgoingEdges(from: nodeId)
+            
+            for edge in outgoingEdges {
+                if let edgeType = edge.attributes["type"] as? String,
+                   edgeType == EdgeType.assoc.rawValue {
+                    if let assocSemanticDesc = edge.attributes["semantic_desc"] as? String {
+                        // Remove trailing period for consistency
+                        let assocComponent = assocSemanticDesc.hasSuffix(".")
+                            ? String(assocSemanticDesc.dropLast())
+                            : assocSemanticDesc
+                        components.append(assocComponent)
+                    }
+                }
+            }
+            
+            // Update the node with normalized_text
+            var updatedAttrs = classNode.attributes
+            updatedAttrs["normalized_text"] = components
+            graph.addNode(nodeId, attributes: updatedAttrs)
+        }
     }
 }
