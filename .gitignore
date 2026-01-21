@@ -1,0 +1,110 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+xcuserdata/
+DerivedData/
+
+# Xcode
+*.xcodeproj
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+*.moved-aside
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.pbxuser
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+xcuserdata/
+profile
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Build products
+build/
+*.o
+*.lo
+*.la
+*.al
+.libs
+*.so
+*.dylib
+*.a
+*.swiftmodule
+*.swiftdoc
+
+# Swift compiled files
+*.swiftmodule
+*.swiftdoc
+*.swift~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Swift REPL
+.swift-version
+.swift-build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Code coverage
+*.gcda
+*.gcno
+*.gcov
+lcov.info
+
+# Dependencies
+Carthage/
+Pods/
+
+# Testing
+.build-tests/
+*.profdata
+*.profraw
+
+# CLI specific
+.cli-build/
+dist/
