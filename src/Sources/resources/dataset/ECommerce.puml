@@ -1,0 +1,400 @@
+@startuml ECommerce
+
+' classes '
+
+' User Management '
+class User{
+    id: Integer
+    email: String
+    passwordHash: String
+    name: String
+    phone: String
+    createdAt: Date
+    updatedAt: Date
+    isActive: Boolean
+}
+
+class Customer{
+    loyaltyPoints: Integer
+    membershipLevel: String
+    totalSpent: Real
+    lastPurchaseDate: Date
+}
+
+class Admin{
+    adminLevel: String
+    permissions: String
+    lastLoginDate: Date
+}
+
+class Seller{
+    shopName: String
+    rating: Real
+    verified: Boolean
+    totalSales: Real
+    joinDate: Date
+}
+
+' Product Management '
+class Product{
+    id: Integer
+    name: String
+    description: String
+    price: Real
+    stock: Integer
+    sku: String
+    status: String
+    createdAt: Date
+    updatedAt: Date
+}
+
+class Category{
+    id: Integer
+    name: String
+    description: String
+    parentCategoryId: Integer
+    slug: String
+    isActive: Boolean
+}
+
+class Brand{
+    id: Integer
+    name: String
+    logo: String
+    country: String
+    website: String
+    description: String
+}
+
+class ProductImage{
+    id: Integer
+    url: String
+    altText: String
+    isPrimary: Boolean
+    displayOrder: Integer
+}
+
+class ProductSpecification{
+    id: Integer
+    key: String
+    value: String
+    displayOrder: Integer
+}
+
+class ProductReview{
+    id: Integer
+    title: String
+    content: String
+    rating: Integer
+    comment: String
+    helpfulCount: Integer
+    verifiedPurchase: Boolean
+    createdAt: Date
+    updatedAt: Date
+}
+
+' Order Management '
+class Order{
+    id: Integer
+    orderNumber: String
+    totalAmount: Real
+    status: String
+    orderDate: Date
+    deliveryDate: Date
+    notes: String
+    createdAt: Date
+}
+
+class OrderItem{
+    id: Integer
+    quantity: Integer
+    price: Real
+    subtotal: Real
+    discount: Real
+}
+
+class OrderStatus{
+    id: Integer
+    status: String
+    timestamp: Date
+    note: String
+    updatedBy: String
+}
+
+class Invoice{
+    id: Integer
+    invoiceNumber: String
+    taxAmount: Real
+    discountAmount: Real
+    finalAmount: Real
+    issueDate: Date
+    dueDate: Date
+}
+
+' Shopping & Cart '
+class ShoppingCart{
+    id: Integer
+    sessionId: String
+    createdAt: Date
+    updatedAt: Date
+}
+
+class CartItem{
+    id: Integer
+    quantity: Integer
+    addedDate: Date
+    price: Real
+}
+
+class Wishlist{
+    id: Integer
+    name: String
+    isPublic: Boolean
+    createdAt: Date
+    updatedAt: Date
+}
+
+class WishlistItem{
+    id: Integer
+    addedDate: Date
+    notes: String
+}
+
+' Payment '
+class Payment{
+    id: Integer
+    amount: Real
+    paymentDate: Date
+    status: String
+    transactionId: String
+    currency: String
+    createdAt: Date
+}
+
+class PaymentMethod{
+    id: Integer
+    type: String
+    last4Digits: String
+    token: String
+    expiryDate: Date
+    billingAddress: String
+    isDefault: Boolean
+    holderName: String
+}
+
+class Transaction{
+    id: Integer
+    amount: Real
+    type: String
+    status: String
+    timestamp: Date
+    reference: String
+    description: String
+}
+
+class Refund{
+    id: Integer
+    amount: Real
+    reason: String
+    status: String
+    processedDate: Date
+    requestedDate: Date
+    notes: String
+}
+
+' Shipping '
+class Shipping{
+    id: Integer
+    trackingNumber: String
+    estimatedDelivery: Date
+    actualDelivery: Date
+    status: String
+    cost: Real
+    createdAt: Date
+}
+
+class Address{
+    id: Integer
+    street: String
+    city: String
+    state: String
+    zipCode: String
+    country: String
+    isDefault: Boolean
+    addressType: String
+    phone: String
+}
+
+class Warehouse{
+    id: Integer
+    name: String
+    location: String
+    capacity: Integer
+    currentStock: Integer
+    manager: String
+    phone: String
+}
+
+class Shipment{
+    id: Integer
+    weight: Real
+    dimensions: String
+    carrier: String
+    trackingCode: String
+    shippedDate: Date
+    receivedDate: Date
+}
+
+class ShippingMethod{
+    id: Integer
+    name: String
+    cost: Real
+    estimatedDays: Integer
+    isActive: Boolean
+    description: String
+}
+
+' Marketing & Discounts '
+class Discount{
+    id: Integer
+    code: String
+    percentage: Real
+    minPurchase: Real
+    validFrom: Date
+    validTo: Date
+    maxUses: Integer
+    currentUses: Integer
+}
+
+class Coupon{
+    id: Integer
+    code: String
+    discountType: String
+    value: Real
+    usageLimit: Integer
+    usedCount: Integer
+    validFrom: Date
+    validTo: Date
+}
+
+class Promotion{
+    id: Integer
+    name: String
+    description: String
+    startDate: Date
+    endDate: Date
+    discountPercent: Real
+    isActive: Boolean
+    bannerImage: String
+}
+
+' Reviews & Ratings '
+class Rating{
+    id: Integer
+    value: Integer
+    category: String
+    comment: String
+    createdAt: Date
+}
+
+' Returns '
+class Return{
+    id: Integer
+    reason: String
+    status: String
+    requestedDate: Date
+    processedDate: Date
+    refundAmount: Real
+    notes: String
+}
+
+class ReturnRequest{
+    id: Integer
+    description: String
+    imageUrls: String
+    requestedDate: Date
+    status: String
+}
+
+' Notifications '
+class Notification{
+    id: Integer
+    type: String
+    message: String
+    isRead: Boolean
+    createdAt: Date
+    link: String
+    priority: String
+}
+
+' associations '
+
+' Inheritance '
+User <|-- Customer
+User <|-- Admin
+User <|-- Seller
+
+' Product Relationships '
+Product "products *" -- "category 1" Category
+Product "products *" -- "brand 1" Brand
+Product "product 1" -- "images *" ProductImage
+Product "product 1" -- "specifications *" ProductSpecification
+Product "product 1" -- "reviews *" ProductReview
+Category "parent 0..1" -- "subcategories *" Category
+Seller "seller 1" -- "products *" Product
+
+' Order Relationships '
+Customer "customer 1" -- "orders *" Order
+Order "order 1" -- "items *" OrderItem
+Order "order 1" -- "statuses *" OrderStatus
+OrderItem "orderItem 1" -- "product 1" Product
+Order "order 1" -- "invoice 0..1" Invoice
+Order "order 1" -- "payment 1" Payment
+Order "order 1" -- "shipping 1" Shipping
+Order "order 1" -- "returns *" Return
+
+' Cart & Wishlist '
+Customer "customer 0..1" -- "carts *" ShoppingCart
+ShoppingCart "cart 1" -- "items *" CartItem
+CartItem "cartItem 1" -- "product 1" Product
+Customer "customer 1" -- "wishlists *" Wishlist
+Wishlist "wishlist 1" -- "items *" WishlistItem
+WishlistItem "wishlistItem 1" -- "product 1" Product
+
+' Payment Relationships '
+Payment "payment 1" -- "method 1" PaymentMethod
+Payment "payment 1" -- "transactions *" Transaction
+Customer "customer 1" -- "paymentMethods *" PaymentMethod
+Order "order 1" -- "refund 0..1" Refund
+
+' Shipping Relationships '
+Shipping "shipping 1" -- "address 1" Address
+Shipping "shipping 1" -- "method 1" ShippingMethod
+Shipping "shipping 1" -- "warehouse 1" Warehouse
+Shipping "shipping 1" -- "shipment 1" Shipment
+Customer "customer 1" -- "addresses *" Address
+Seller "seller 1" -- "warehouses *" Warehouse
+
+' Review Relationships '
+ProductReview "review 1" -- "customer 1" Customer
+ProductReview "review 1" -- "product 1" Product
+ProductReview "review 1" -- "orderItem 0..1" OrderItem
+ProductReview "review 1" -- "rating 0..1" Rating
+
+' Return Relationships '
+Return "return 1" -- "request 0..1" ReturnRequest
+Return "return 1" -- "refund 0..1" Refund
+Return "return 1" -- "order 1" Order
+
+' Discount/Promotion Relationships '
+Order "order 1" -- "discount 0..1" Discount
+Order "order 1" -- "coupon 0..1" Coupon
+Product "products *" -- "promotions *" Promotion
+Customer "customer 1" -- "coupons *" Coupon
+
+' Notification Relationships '
+Customer "customer 1" -- "notifications *" Notification
+Order "order 1" -- "notifications *" Notification
+Product "product 1" -- "notifications *" Notification
+
+@enduml
