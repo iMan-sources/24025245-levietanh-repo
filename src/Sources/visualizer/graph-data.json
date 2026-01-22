@@ -1,408 +1,265 @@
 {
   "edges" : [
     {
-      "destination" : "name@Airport",
-      "key" : "26BBF39F-749A-4764-914E-D1DB5591D0AF",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "source" : "Airport"
+      "weight" : 0.29999999999999999,
+      "node1" : "Flight",
+      "node2" : "departTime@Flight"
     },
     {
-      "destination" : "Flight",
-      "source" : "Airport",
-      "key" : "e0",
-      "attributes" : {
-        "multSrc" : "1..1",
-        "roleDst" : "departingFlights",
-        "roleSrc" : "origin",
-        "id" : "e0",
-        "aggKind" : "none",
-        "multDst" : "0..*",
-        "type" : "ASSOC",
-        "semantic_desc" : "Class airport is associated with a collection of multiple flight objects through role origin."
-      }
+      "node2" : "maxNrPassenger@Flight",
+      "weight" : 0.29999999999999999,
+      "node1" : "Flight"
     },
     {
-      "source" : "Airport",
-      "attributes" : {
-        "aggKind" : "none",
-        "multSrc" : "1..1",
-        "id" : "e1",
-        "semantic_desc" : "Class airport is associated with a collection of multiple flight objects through role destination.",
-        "multDst" : "0..*",
-        "type" : "ASSOC",
-        "roleDst" : "arrivingFlights",
-        "roleSrc" : "destination"
-      },
-      "destination" : "Flight",
-      "key" : "e1"
+      "node1" : "Airline",
+      "weight" : 0.29999999999999999,
+      "node2" : "name@Airline"
     },
     {
-      "source" : "Flight",
-      "key" : "7156A932-8882-4B7C-A4E0-C2381801FDC7",
-      "destination" : "departTime@Flight",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      }
+      "node1" : "Airline",
+      "node2" : "Passenger",
+      "weight" : 1
     },
     {
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "key" : "60CE5202-4F72-489B-A0E2-40B67420FE60",
-      "source" : "Flight",
-      "destination" : "arrivalTime@Flight"
+      "weight" : 0.29999999999999999,
+      "node2" : "duration@Flight",
+      "node1" : "Flight"
     },
     {
-      "destination" : "duration@Flight",
-      "key" : "A8BDB285-A612-4DEE-8676-AE5FFADFB82F",
-      "source" : "Flight",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      }
+      "node1" : "Airport",
+      "node2" : "Flight",
+      "weight" : 1
     },
     {
-      "key" : "03C6B734-5014-4B53-9DA8-5743F088CEF2",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "destination" : "maxNrPassenger@Flight",
-      "source" : "Flight"
+      "node1" : "Airline",
+      "weight" : 1,
+      "node2" : "Flight"
     },
     {
-      "key" : "e0",
-      "destination" : "Airport",
-      "source" : "Flight",
-      "attributes" : {
-        "id" : "e0",
-        "aggKind" : "none",
-        "semantic_desc" : "Class flight is associated with a single airport objects through role departing flights.",
-        "multSrc" : "0..*",
-        "type" : "ASSOC",
-        "multDst" : "1..1",
-        "roleDst" : "origin",
-        "roleSrc" : "departingFlights"
-      }
+      "node1" : "Passenger",
+      "node2" : "needsAssistance@Passenger",
+      "weight" : 0.29999999999999999
     },
     {
-      "key" : "e1",
-      "source" : "Flight",
-      "destination" : "Airport",
-      "attributes" : {
-        "type" : "ASSOC",
-        "aggKind" : "none",
-        "multDst" : "1..1",
-        "multSrc" : "0..*",
-        "roleDst" : "destination",
-        "semantic_desc" : "Class flight is associated with a single airport objects through role arriving flights.",
-        "roleSrc" : "arrivingFlights",
-        "id" : "e1"
-      }
+      "weight" : 0.29999999999999999,
+      "node1" : "Passenger",
+      "node2" : "minAge@Passenger"
     },
     {
-      "destination" : "Airline",
-      "attributes" : {
-        "multSrc" : "0..*",
-        "semantic_desc" : "Class flight is associated with a single airline objects through role flights.",
-        "multDst" : "1..1",
-        "aggKind" : "none",
-        "id" : "e2",
-        "roleDst" : "airline",
-        "type" : "ASSOC",
-        "roleSrc" : "flights"
-      },
-      "key" : "e2",
-      "source" : "Flight"
+      "node2" : "name@Airport",
+      "node1" : "Airport",
+      "weight" : 0.29999999999999999
     },
     {
-      "attributes" : {
-        "roleSrc" : "flight",
-        "multDst" : "0..*",
-        "multSrc" : "1..1",
-        "semantic_desc" : "Class flight is associated with a collection of multiple passenger objects through role flight.",
-        "roleDst" : "passengers",
-        "type" : "ASSOC",
-        "aggKind" : "none",
-        "id" : "e3"
-      },
-      "key" : "e3",
-      "source" : "Flight",
-      "destination" : "Passenger"
+      "node1" : "Passenger",
+      "weight" : 0.20000000000000001,
+      "node2" : "book(f: Flight)@Passenger"
     },
     {
-      "destination" : "minAge@Passenger",
-      "source" : "Passenger",
-      "key" : "327B7FB4-C946-44A5-B118-99D988BBE8A1",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      }
+      "node1" : "Passenger",
+      "weight" : 0.29999999999999999,
+      "node2" : "age@Passenger"
     },
     {
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "key" : "8B2F74F0-24E7-4EE8-B5D9-59BBEEAFCAF3",
-      "destination" : "age@Passenger",
-      "source" : "Passenger"
+      "node2" : "arrivalTime@Flight",
+      "node1" : "Flight",
+      "weight" : 0.29999999999999999
     },
     {
-      "key" : "1871FAC8-8AE6-463A-BAD2-DCEAD706608A",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "source" : "Passenger",
-      "destination" : "needsAssistance@Passenger"
-    },
-    {
-      "source" : "Passenger",
-      "destination" : "book(f: Flight)@Passenger",
-      "key" : "30E0E66F-44C8-4218-9DEA-40D515CD4C80",
-      "attributes" : {
-        "type" : "OWNS_OP"
-      }
-    },
-    {
-      "source" : "Passenger",
-      "destination" : "Flight",
-      "key" : "e3",
-      "attributes" : {
-        "multDst" : "1..1",
-        "id" : "e3",
-        "type" : "ASSOC",
-        "multSrc" : "0..*",
-        "roleSrc" : "passengers",
-        "aggKind" : "none",
-        "roleDst" : "flight",
-        "semantic_desc" : "Class passenger is associated with a single flight objects through role passengers."
-      }
-    },
-    {
-      "key" : "e4",
-      "attributes" : {
-        "type" : "ASSOC",
-        "semantic_desc" : "Class passenger is associated with a single airline objects through role ceo.",
-        "multSrc" : "0..1",
-        "multDst" : "0..1",
-        "id" : "e4",
-        "roleSrc" : "CEO",
-        "roleDst" : "airline",
-        "aggKind" : "none"
-      },
-      "source" : "Passenger",
-      "destination" : "Airline"
-    },
-    {
-      "source" : "Airline",
-      "destination" : "name@Airline",
-      "key" : "46E4443F-1684-4F8B-82D8-1B60830E4163",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      }
-    },
-    {
-      "attributes" : {
-        "multSrc" : "1..1",
-        "type" : "ASSOC",
-        "semantic_desc" : "Class airline is associated with a collection of multiple flight objects through role airline.",
-        "aggKind" : "none",
-        "roleDst" : "flights",
-        "multDst" : "0..*",
-        "id" : "e2",
-        "roleSrc" : "airline"
-      },
-      "key" : "e2",
-      "destination" : "Flight",
-      "source" : "Airline"
-    },
-    {
-      "source" : "Airline",
-      "key" : "e4",
-      "destination" : "Passenger",
-      "attributes" : {
-        "roleSrc" : "airline",
-        "type" : "ASSOC",
-        "multDst" : "0..1",
-        "roleDst" : "CEO",
-        "id" : "e4",
-        "semantic_desc" : "Class airline is associated with a single passenger objects through role airline.",
-        "multSrc" : "0..1",
-        "aggKind" : "none"
-      }
+      "weight" : 1,
+      "node1" : "Flight",
+      "node2" : "Passenger"
     }
   ],
   "nodes" : [
     {
+      "attributes" : {
+        "isInterface" : false,
+        "name" : "Airline",
+        "type" : "Class",
+        "normalized_text" : [
+          "Class airline represents a domain entity",
+          "Class airline is associated with a collection of multiple flight objects through role airline",
+          "Class airline is associated with a single passenger objects through role airline"
+        ],
+        "isAbstract" : false,
+        "semantic_desc" : "Class airline represents a domain entity.",
+        "stereotypes" : [
+
+        ]
+      },
+      "id" : "Airline"
+    },
+    {
+      "attributes" : {
+        "stereotypes" : [
+
+        ],
+        "normalized_text" : [
+          "Class airport represents a domain entity",
+          "Class airport is associated with a collection of multiple flight objects through role origin",
+          "Class airport is associated with a collection of multiple flight objects through role destination"
+        ],
+        "type" : "Class",
+        "isAbstract" : false,
+        "semantic_desc" : "Class airport represents a domain entity.",
+        "isInterface" : false,
+        "name" : "Airport"
+      },
+      "id" : "Airport"
+    },
+    {
+      "id" : "name@Airport",
+      "attributes" : {
+        "semantic_desc" : "name is an attribute of class airport with data type string. It represents textual information.",
+        "name" : "name",
+        "isDerived" : false,
+        "attrType" : "String",
+        "type" : "Attribute",
+        "owner" : "Airport"
+      }
+    },
+    {
+      "id" : "name@Airline",
+      "attributes" : {
+        "name" : "name",
+        "owner" : "Airline",
+        "type" : "Attribute",
+        "attrType" : "String",
+        "semantic_desc" : "name is an attribute of class airline with data type string. It represents textual information.",
+        "isDerived" : false
+      }
+    },
+    {
+      "id" : "duration@Flight",
+      "attributes" : {
+        "semantic_desc" : "duration is an attribute of class flight with data type date. It represents a point in time.",
+        "name" : "duration",
+        "attrType" : "Date",
+        "isDerived" : false,
+        "type" : "Attribute",
+        "owner" : "Flight"
+      }
+    },
+    {
+      "id" : "minAge@Passenger",
+      "attributes" : {
+        "attrType" : "Integer",
+        "semantic_desc" : "min age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation.",
+        "owner" : "Passenger",
+        "name" : "minAge",
+        "type" : "Attribute",
+        "isDerived" : false
+      }
+    },
+    {
       "id" : "book(f: Flight)@Passenger",
       "attributes" : {
-        "semantic_desc" : "book is an operation of class passenger that accepts inputs f of type flight and returns void. It performs an action or state change.",
-        "name" : "book",
-        "type" : "Operation",
-        "owner" : "Passenger",
-        "isDerived" : false,
         "params" : [
           {
             "type" : "Flight",
             "name" : "f"
           }
-        ]
+        ],
+        "type" : "Operation",
+        "isDerived" : false,
+        "name" : "book",
+        "semantic_desc" : "book is an operation of class passenger that accepts inputs f of type flight and returns void. It performs an action or state change.",
+        "owner" : "Passenger"
+      }
+    },
+    {
+      "id" : "needsAssistance@Passenger",
+      "attributes" : {
+        "attrType" : "Boolean",
+        "type" : "Attribute",
+        "name" : "needsAssistance",
+        "semantic_desc" : "needs assistance is an attribute of class passenger with data type boolean. It represents a logical state or flag.",
+        "isDerived" : false,
+        "owner" : "Passenger"
       }
     },
     {
       "attributes" : {
-        "owner" : "Passenger",
-        "type" : "Attribute",
-        "semantic_desc" : "min age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation.",
-        "attrType" : "Integer",
-        "isDerived" : false,
-        "name" : "minAge"
-      },
-      "id" : "minAge@Passenger"
-    },
-    {
-      "id" : "Airport",
-      "attributes" : {
-        "type" : "Class",
-        "name" : "Airport",
-        "semantic_desc" : "Class airport represents a domain entity.",
-        "isInterface" : false,
         "isAbstract" : false,
+        "name" : "Flight",
+        "isInterface" : false,
+        "type" : "Class",
         "stereotypes" : [
 
+        ],
+        "semantic_desc" : "Class flight represents a domain entity.",
+        "normalized_text" : [
+          "Class flight represents a domain entity",
+          "Class flight is associated with a single airport objects through role departing flights",
+          "Class flight is associated with a single airport objects through role arriving flights",
+          "Class flight is associated with a single airline objects through role flights",
+          "Class flight is associated with a collection of multiple passenger objects through role flight"
         ]
-      }
+      },
+      "id" : "Flight"
     },
     {
-      "id" : "arrivalTime@Flight",
       "attributes" : {
-        "attrType" : "Date",
-        "semantic_desc" : "arrival time is an attribute of class flight with data type date. It represents a point in time.",
-        "owner" : "Flight",
-        "name" : "arrivalTime",
         "type" : "Attribute",
+        "name" : "age",
+        "attrType" : "Integer",
+        "isDerived" : false,
+        "owner" : "Passenger",
+        "semantic_desc" : "age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation."
+      },
+      "id" : "age@Passenger"
+    },
+    {
+      "id" : "departTime@Flight",
+      "attributes" : {
+        "name" : "departTime",
+        "owner" : "Flight",
+        "attrType" : "Date",
+        "type" : "Attribute",
+        "semantic_desc" : "depart time is an attribute of class flight with data type date. It represents a point in time.",
         "isDerived" : false
       }
     },
     {
       "attributes" : {
         "name" : "Passenger",
-        "isAbstract" : false,
-        "type" : "Class",
+        "isInterface" : false,
+        "semantic_desc" : "Class passenger represents a domain entity.",
         "stereotypes" : [
 
         ],
-        "isInterface" : false,
-        "semantic_desc" : "Class passenger represents a domain entity."
+        "isAbstract" : false,
+        "type" : "Class",
+        "normalized_text" : [
+          "Class passenger represents a domain entity",
+          "Class passenger is associated with a single flight objects through role passengers",
+          "Class passenger is associated with a single airline objects through role ceo"
+        ]
       },
       "id" : "Passenger"
     },
     {
-      "id" : "age@Passenger",
-      "attributes" : {
-        "type" : "Attribute",
-        "owner" : "Passenger",
-        "isDerived" : false,
-        "attrType" : "Integer",
-        "name" : "age",
-        "semantic_desc" : "age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation."
-      }
-    },
-    {
-      "id" : "departTime@Flight",
-      "attributes" : {
-        "attrType" : "Date",
-        "semantic_desc" : "depart time is an attribute of class flight with data type date. It represents a point in time.",
-        "name" : "departTime",
-        "type" : "Attribute",
-        "isDerived" : false,
-        "owner" : "Flight"
-      }
-    },
-    {
-      "id" : "name@Airport",
-      "attributes" : {
-        "type" : "Attribute",
-        "isDerived" : false,
-        "attrType" : "String",
-        "owner" : "Airport",
-        "semantic_desc" : "name is an attribute of class airport with data type string. It represents textual information.",
-        "name" : "name"
-      }
-    },
-    {
-      "id" : "Airline",
-      "attributes" : {
-        "stereotypes" : [
-
-        ],
-        "isAbstract" : false,
-        "isInterface" : false,
-        "semantic_desc" : "Class airline represents a domain entity.",
-        "name" : "Airline",
-        "type" : "Class"
-      }
-    },
-    {
-      "id" : "Flight",
-      "attributes" : {
-        "isAbstract" : false,
-        "semantic_desc" : "Class flight represents a domain entity.",
-        "type" : "Class",
-        "stereotypes" : [
-
-        ],
-        "isInterface" : false,
-        "name" : "Flight"
-      }
-    },
-    {
-      "id" : "needsAssistance@Passenger",
-      "attributes" : {
-        "owner" : "Passenger",
-        "type" : "Attribute",
-        "name" : "needsAssistance",
-        "attrType" : "Boolean",
-        "isDerived" : false,
-        "semantic_desc" : "needs assistance is an attribute of class passenger with data type boolean. It represents a logical state or flag."
-      }
-    },
-    {
-      "id" : "maxNrPassenger@Flight",
-      "attributes" : {
-        "type" : "Attribute",
-        "attrType" : "Integer",
-        "semantic_desc" : "max nr passenger is an attribute of class flight with data type integer. It represents a numeric value used for calculation.",
-        "name" : "maxNrPassenger",
-        "isDerived" : false,
-        "owner" : "Flight"
-      }
-    },
-    {
-      "id" : "name@Airline",
-      "attributes" : {
-        "type" : "Attribute",
-        "owner" : "Airline",
-        "semantic_desc" : "name is an attribute of class airline with data type string. It represents textual information.",
-        "attrType" : "String",
-        "isDerived" : false,
-        "name" : "name"
-      }
-    },
-    {
-      "id" : "duration@Flight",
       "attributes" : {
         "isDerived" : false,
         "owner" : "Flight",
+        "semantic_desc" : "max nr passenger is an attribute of class flight with data type integer. It represents a numeric value used for calculation.",
+        "name" : "maxNrPassenger",
+        "attrType" : "Integer",
+        "type" : "Attribute"
+      },
+      "id" : "maxNrPassenger@Flight"
+    },
+    {
+      "id" : "arrivalTime@Flight",
+      "attributes" : {
         "type" : "Attribute",
-        "semantic_desc" : "duration is an attribute of class flight with data type date. It represents a point in time.",
-        "name" : "duration",
-        "attrType" : "Date"
+        "isDerived" : false,
+        "owner" : "Flight",
+        "attrType" : "Date",
+        "semantic_desc" : "arrival time is an attribute of class flight with data type date. It represents a point in time.",
+        "name" : "arrivalTime"
       }
     }
-  ],
-  "metadata" : {
-    "warnings" : [
-
-    ]
-  }
+  ]
 }

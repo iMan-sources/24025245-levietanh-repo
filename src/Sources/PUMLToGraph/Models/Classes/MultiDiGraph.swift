@@ -10,6 +10,58 @@ import Foundation
 /// This is essential for representing UML associations where two classes can have
 /// multiple different relationships.
 
+/// Edge weights for converting directed graph to undirected weighted graph
+public enum EdgeWeight {
+    public static let assoc: Double = 1.0
+    public static let generalizes: Double = 0.8
+    public static let realizes: Double = 0.8
+    public static let hasType: Double = 0.5
+    public static let ownsAttr: Double = 0.3
+    public static let ownsOp: Double = 0.2
+    public static let hasLiteral: Double = 0.1
+    
+    /// Get weight for an edge type
+    ///
+    /// Args:
+    ///     edgeType: The EdgeType to get weight for
+    ///
+    /// Returns:
+    ///     Weight value for the edge type, or 1.0 as default
+    public static func getWeight(for edgeType: EdgeType) -> Double {
+        switch edgeType {
+        case .assoc:
+            return assoc
+        case .generalizes:
+            return generalizes
+        case .realizes:
+            return realizes
+        case .hasType:
+            return hasType
+        case .ownsAttr:
+            return ownsAttr
+        case .ownsOp:
+            return ownsOp
+        case .hasLiteral:
+            return hasLiteral
+        }
+    }
+    
+    /// Get weight for an edge type string
+    ///
+    /// Args:
+    ///     edgeTypeString: String representation of edge type (e.g., "ASSOC")
+    ///
+    /// Returns:
+    ///     Weight value for the edge type, or 1.0 as default if type is unknown
+    public static func getWeight(for edgeTypeString: String) -> Double {
+        if let edgeType = EdgeType(rawValue: edgeTypeString) {
+            return getWeight(for: edgeType)
+        }
+        // Default weight for unknown edge types
+        return 1.0
+    }
+}
+
 /// Represents a node in the graph
 public struct GraphNode {
     /// Unique identifier for the node
@@ -264,6 +316,50 @@ extension MultiDiGraph {
     /// Get the total number of edges in the graph
     public func numberOfEdges() -> Int {
         return outgoingEdges.values.reduce(0) { $0 + $1.count }
+    }
+}
+
+// MARK: - Undirected Weighted Graph Conversion
+extension MultiDiGraph {
+    /// Convert directed graph to undirected weighted graph
+    ///
+    /// Converts the directed MultiDiGraph to an UndirectedWeightedGraph where:
+    /// - All nodes are preserved
+    /// - Edges are converted to undirected edges with weights based on edge type
+    /// - If two nodes have bidirectional edges, the minimum weight is used
+    ///
+    /// Returns:
+    ///     UndirectedWeightedGraph representation of this graph
+    ///
+    /// Example:
+    ///     let directedGraph = MultiDiGraph()
+    ///     // ... build graph ...
+    ///     let undirectedGraph = directedGraph.toUndirectedWeightedGraph()
+    ///     let edges = undirectedGraph.allEdges() // [(node1, node2, weight), ...]
+    public func toUndirectedWeightedGraph() -> UndirectedWeightedGraph {
+        // Create new undirected weighted graph
+        let undirectedGraph = UndirectedWeightedGraph()
+        
+        // Copy all nodes
+        for node in allNodes() {
+            undirectedGraph.addNode(node)
+        }
+        
+        // Process all edges
+        for edge in allEdges() {
+            // Get edge type from attributes
+            let edgeTypeString = edge.attributes["type"] as? String ?? "ASSOC"
+            
+            // Get weight for this edge type
+            let weight = EdgeWeight.getWeight(for: edgeTypeString)
+            
+            // Add edge to undirected graph
+            // The addEdge method in UndirectedWeightedGraph automatically handles
+            // bidirectional edges by taking the minimum weight
+            undirectedGraph.addEdge(node1: edge.source, node2: edge.destination, weight: weight)
+        }
+        
+        return undirectedGraph
     }
 }
 

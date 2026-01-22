@@ -21,31 +21,37 @@ func main() async {
         let graph = try converter.convertFile(filepath: airportPath)
         print("Graph loaded with \(graph.numberOfNodes()) nodes")
         
-        // Step 2: Extract desc candidates from graph nodes
-        let mapping = graphExtractor.extractDesc(from: graph)
-        print("Extracted \(mapping.candidates.count) candidates from graph")
-        
-        guard !mapping.candidates.isEmpty else {
-            print("No candidates found in graph")
-            return
-        }
-        
-        // Step 3: Embed candidates and compute distances
-        let input: Embedder.EmbedderInput = (spec: spec, candidates: mapping.candidates)
-        let distances = try await embedder.loadAndEmbed(input)
-        
-        // Step 4: Find top-k unique nodes with minimum distance
-        let topK = embedder.findTopK(distances: distances, nodeIds: mapping.nodeIds, k: k)
-        
-        // Step 5: Print results
-        print("\n--- Top \(k) nodes matching spec ---")
-        print("Spec: \"\(spec)\"\n")
-        
-        for (rank, result) in topK.enumerated() {
-            print("\(rank + 1). Node: \(result.nodeId)")
-            print("   Distance: \(String(format: "%.4f", result.distance))")
-            print("")
-        }
+        let undirectedGraph = graph.toUndirectedWeightedGraph()
+        let visualizerDir = (currentDir as NSString).appendingPathComponent("visualizer")
+        let jsonPath = (visualizerDir as NSString).appendingPathComponent("graph-data.json")
+        try undirectedGraph.exportToJSON(filepath: jsonPath)
+        let json = undirectedGraph.toJSON()
+        print(json)
+//        // Step 2: Extract desc candidates from graph nodes
+//        let mapping = graphExtractor.extractDesc(from: graph)
+//        print("Extracted \(mapping.candidates.count) candidates from graph")
+//        
+//        guard !mapping.candidates.isEmpty else {
+//            print("No candidates found in graph")
+//            return
+//        }
+//        
+//        // Step 3: Embed candidates and compute distances
+//        let input: Embedder.EmbedderInput = (spec: spec, candidates: mapping.candidates)
+//        let distances = try await embedder.loadAndEmbed(input)
+//        
+//        // Step 4: Find top-k unique nodes with minimum distance
+//        let topK = embedder.findTopK(distances: distances, nodeIds: mapping.nodeIds, k: k)
+//        
+//        // Step 5: Print results
+//        print("\n--- Top \(k) nodes matching spec ---")
+//        print("Spec: \"\(spec)\"\n")
+//        
+//        for (rank, result) in topK.enumerated() {
+//            print("\(rank + 1). Node: \(result.nodeId)")
+//            print("   Distance: \(String(format: "%.4f", result.distance))")
+//            print("")
+//        }
         
     } catch {
         print("Error: \(error.localizedDescription)")

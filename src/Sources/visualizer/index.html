@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UML Network Graph Visualizer</title>
-    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -98,13 +98,57 @@
             background: #edf2f7;
             border-radius: 6px;
             font-size: 14px;
-            color: #2d3748;
+            color: rgb(30,55,95);
         }
 
-        #cy {
+        #chart-container {
             width: 100%;
             height: calc(100vh - 160px);
             background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #svg-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node {
+            cursor: pointer;
+            stroke: rgb(30,55,95);
+            stroke-width: 2px;
+        }
+
+        .node:hover {
+            stroke-width: 3px;
+        }
+
+        .link {
+            fill: none;
+            stroke: #2d3748;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+
+        .link:hover {
+            stroke-opacity: 1;
+            stroke-width: 3px;
+        }
+
+        .node-label {
+            font-size: 12px;
+            pointer-events: none;
+            text-anchor: middle;
+            fill: rgb(30,55,95);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .node-label-background {
+            fill: white;
+            fill-opacity: 0.8;
         }
 
         #legend {
@@ -117,12 +161,13 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             max-width: 250px;
             font-size: 13px;
+            z-index: 10;
         }
 
         #legend h3 {
             font-size: 14px;
             margin-bottom: 10px;
-            color: #2d3748;
+            color: rgb(30,55,95);
         }
 
         .legend-item {
@@ -140,7 +185,7 @@
         }
 
         .legend-label {
-            color: #4a5568;
+            color: rgb(30,55,95);
         }
 
         #info-panel {
@@ -154,29 +199,30 @@
             max-width: 350px;
             font-size: 13px;
             display: none;
+            z-index: 10;
         }
 
         #info-panel h3 {
             font-size: 16px;
             margin-bottom: 10px;
-            color: #2d3748;
+            color: rgb(30,55,95);
         }
 
         #info-panel .info-item {
             margin: 6px 0;
-            color: #4a5568;
+            color: rgb(30,55,95);
         }
 
         #info-panel .info-label {
             font-weight: 600;
-            color: #2d3748;
+            color: rgb(30,55,95);
         }
     </style>
 </head>
 <body>
     <div id="header">
         <h1>UML Network Graph Visualizer</h1>
-        <p>Interactive visualization of PlantUML class diagrams - Click on classes to expand/collapse members</p>
+        <p>Interactive visualization of undirected weighted graphs using D3.js - Click on nodes to view details</p>
     </div>
 
     <div id="controls">
@@ -184,14 +230,12 @@
             <label for="file-input" class="file-label">Load JSON</label>
             <input type="file" id="file-input" accept=".json">
         </div>
-        <button id="fit-btn">Fit to Screen</button>
-        <button id="collapse-all-btn">Collapse All</button>
-        <button id="expand-all-btn">Expand All</button>
-        <button id="reset-layout-btn">Reset Layout</button>
         <div id="stats">No graph loaded</div>
     </div>
 
-    <div id="cy"></div>
+    <div id="chart-container">
+        <svg id="svg-container"></svg>
+    </div>
 
     <div id="legend">
         <h3>Node Types</h3>
@@ -234,248 +278,219 @@
     <div id="info-panel"></div>
 
     <script>
-        let cy;
+        let svg, g, simulation;
         let graphData = null;
-        let expandedClasses = new Set();
+        let nodes = [];
+        let links = [];
+        let nodeMap = new Map();
 
-        // Initialize Cytoscape
-        function initCytoscape() {
-            cy = cytoscape({
-                container: document.getElementById('cy'),
-                style: [
-                    // Base node styles
-                    {
-                        selector: 'node',
-                        style: {
-                            'label': 'data(label)',
-                            'text-valign': 'center',
-                            'text-halign': 'center',
-                            'font-size': '12px',
-                            'font-weight': '500',
-                            'color': '#2d3748',
-                            'text-wrap': 'wrap',
-                            'text-max-width': '120px',
-                            'border-width': 2,
-                            'border-color': '#2d3748'
-                        }
-                    },
-                    // Class nodes
-                    {
-                        selector: 'node[nodeType="Class"]',
-                        style: {
-                            'shape': 'roundrectangle',
-                            'background-color': '#4299e1',
-                            'width': 100,
-                            'height': 50,
-                            'font-size': '14px',
-                            'font-weight': '600',
-                            'color': 'white',
-                            'border-color': '#2c5282'
-                        }
-                    },
-                    // Enumeration nodes
-                    {
-                        selector: 'node[nodeType="Enumeration"]',
-                        style: {
-                            'shape': 'hexagon',
-                            'background-color': '#9f7aea',
-                            'width': 100,
-                            'height': 50,
-                            'font-size': '14px',
-                            'font-weight': '600',
-                            'color': 'white',
-                            'border-color': '#6b46c1'
-                        }
-                    },
-                    // Attribute nodes
-                    {
-                        selector: 'node[nodeType="Attribute"]',
-                        style: {
-                            'shape': 'ellipse',
-                            'background-color': '#48bb78',
-                            'width': 80,
-                            'height': 40,
-                            'font-size': '11px',
-                            'color': 'white',
-                            'border-color': '#2f855a'
-                        }
-                    },
-                    // Operation nodes
-                    {
-                        selector: 'node[nodeType="Operation"]',
-                        style: {
-                            'shape': 'diamond',
-                            'background-color': '#ed8936',
-                            'width': 80,
-                            'height': 80,
-                            'font-size': '11px',
-                            'color': 'white',
-                            'border-color': '#c05621'
-                        }
-                    },
-                    // EnumLiteral nodes
-                    {
-                        selector: 'node[nodeType="EnumLiteral"]',
-                        style: {
-                            'shape': 'ellipse',
-                            'background-color': '#d6bcfa',
-                            'width': 60,
-                            'height': 30,
-                            'font-size': '10px',
-                            'color': '#553c9a',
-                            'border-color': '#9f7aea'
-                        }
-                    },
-                    // AssociationClass nodes
-                    {
-                        selector: 'node[nodeType="AssociationClass"]',
-                        style: {
-                            'shape': 'roundrectangle',
-                            'background-color': '#4fd1c5',
-                            'width': 100,
-                            'height': 50,
-                            'font-size': '14px',
-                            'font-weight': '600',
-                            'color': 'white',
-                            'border-color': '#2c7a7b',
-                            'border-style': 'dashed'
-                        }
-                    },
-                    // Expanded state indicator
-                    {
-                        selector: 'node.expanded',
-                        style: {
-                            'border-width': 4,
-                            'border-color': '#f56565'
-                        }
-                    },
-                    // Hidden nodes
-                    {
-                        selector: 'node.hidden',
-                        style: {
-                            'display': 'none'
-                        }
-                    },
-                    // Base edge styles
-                    {
-                        selector: 'edge',
-                        style: {
-                            'curve-style': 'bezier',
-                            'width': 2,
-                            'line-color': '#2d3748',
-                            'target-arrow-color': '#2d3748',
-                            'label': 'data(label)',
-                            'font-size': '10px',
-                            'color': '#4a5568',
-                            'text-rotation': 'autorotate',
-                            'text-margin-y': -10,
-                            'text-background-color': 'white',
-                            'text-background-opacity': 0.8,
-                            'text-background-padding': '3px'
-                        }
-                    },
-                    // Association edges
-                    {
-                        selector: 'edge[edgeType="ASSOC"]',
-                        style: {
-                            'line-color': '#2d3748',
-                            'target-arrow-shape': 'triangle',
-                            'target-arrow-color': '#2d3748',
-                            'width': 2
-                        }
-                    },
-                    // Bidirectional associations
-                    {
-                        selector: 'edge[edgeType="ASSOC"][isBidirectional]',
-                        style: {
-                            'source-arrow-shape': 'triangle',
-                            'source-arrow-color': '#2d3748'
-                        }
-                    },
-                    // Generalization edges
-                    {
-                        selector: 'edge[edgeType="GENERALIZES"]',
-                        style: {
-                            'line-color': '#718096',
-                            'target-arrow-shape': 'triangle',
-                            'target-arrow-color': '#718096',
-                            'target-arrow-fill': 'hollow',
-                            'width': 2
-                        }
-                    },
-                    // Realization edges
-                    {
-                        selector: 'edge[edgeType="REALIZES"]',
-                        style: {
-                            'line-style': 'dashed',
-                            'line-color': '#718096',
-                            'target-arrow-shape': 'triangle',
-                            'target-arrow-color': '#718096',
-                            'target-arrow-fill': 'hollow',
-                            'width': 2
-                        }
-                    },
-                    // Ownership edges (OWNS_ATTR, OWNS_OP, HAS_LITERAL)
-                    {
-                        selector: 'edge[edgeType="OWNS_ATTR"], edge[edgeType="OWNS_OP"], edge[edgeType="HAS_LITERAL"], edge[edgeType="HAS_TYPE"]',
-                        style: {
-                            'line-style': 'dotted',
-                            'line-color': '#a0aec0',
-                            'width': 1.5,
-                            'target-arrow-shape': 'none'
-                        }
-                    },
-                    // Hidden edges
-                    {
-                        selector: 'edge.hidden',
-                        style: {
-                            'display': 'none'
-                        }
-                    },
-                    // Highlighted elements
-                    {
-                        selector: ':selected',
-                        style: {
-                            'border-width': 3,
-                            'border-color': '#f56565'
-                        }
+        // Get node visual properties based on type
+        function getNodeStyle(nodeType) {
+            switch(nodeType) {
+                case 'Class':
+                    return { fill: '#4299e1', stroke: '#2c5282', radius: 20, shape: 'rect' };
+                case 'Enumeration':
+                    return { fill: '#9f7aea', stroke: '#6b46c1', radius: 20, shape: 'hexagon' };
+                case 'Attribute':
+                    return { fill: '#48bb78', stroke: '#2f855a', radius: 15, shape: 'circle' };
+                case 'Operation':
+                    return { fill: '#ed8936', stroke: '#c05621', radius: 18, shape: 'diamond' };
+                case 'EnumLiteral':
+                    return { fill: '#d6bcfa', stroke: '#9f7aea', radius: 12, shape: 'circle' };
+                case 'AssociationClass':
+                    return { fill: '#4fd1c5', stroke: '#2c7a7b', radius: 20, shape: 'rect' };
+                default:
+                    return { fill: '#718096', stroke: '#4a5568', radius: 15, shape: 'circle' };
+            }
+        }
+
+        // Draw node shape
+        function drawNodeShape(selection, style) {
+            selection.each(function(d) {
+                const el = d3.select(this);
+                el.selectAll('*').remove();
+                
+                if (style.shape === 'rect') {
+                    el.append('rect')
+                        .attr('x', -style.radius)
+                        .attr('y', -style.radius)
+                        .attr('width', style.radius * 2)
+                        .attr('height', style.radius * 2)
+                        .attr('rx', 4)
+                        .attr('fill', style.fill)
+                        .attr('stroke', style.stroke);
+                } else if (style.shape === 'hexagon') {
+                    const points = [];
+                    for (let i = 0; i < 6; i++) {
+                        const angle = (Math.PI / 3) * i - Math.PI / 6;
+                        points.push([
+                            Math.cos(angle) * style.radius,
+                            Math.sin(angle) * style.radius
+                        ]);
                     }
-                ],
-                layout: {
-                    name: 'cose',
-                    animate: true,
-                    animationDuration: 500
-                },
-                wheelSensitivity: 0.2
-            });
-
-            // Add click event for expand/collapse
-            cy.on('tap', 'node', function(evt) {
-                const node = evt.target;
-                const nodeType = node.data('nodeType');
-                
-                if (nodeType === 'Class' || nodeType === 'Enumeration' || nodeType === 'AssociationClass') {
-                    toggleExpand(node.id());
-                }
-                
-                showNodeInfo(node);
-            });
-
-            // Clear info panel when clicking on background
-            cy.on('tap', function(evt) {
-                if (evt.target === cy) {
-                    document.getElementById('info-panel').style.display = 'none';
+                    el.append('polygon')
+                        .attr('points', points.map(p => p.join(',')).join(' '))
+                        .attr('fill', style.fill)
+                        .attr('stroke', style.stroke);
+                } else if (style.shape === 'diamond') {
+                    el.append('polygon')
+                        .attr('points', [
+                            [0, -style.radius].join(','),
+                            [style.radius, 0].join(','),
+                            [0, style.radius].join(','),
+                            [-style.radius, 0].join(',')
+                        ].join(' '))
+                        .attr('fill', style.fill)
+                        .attr('stroke', style.stroke);
+                } else { // circle
+                    el.append('circle')
+                        .attr('r', style.radius)
+                        .attr('fill', style.fill)
+                        .attr('stroke', style.stroke);
                 }
             });
         }
 
-        // Load graph data
-        function loadGraphData(data) {
-            graphData = data;
-            expandedClasses.clear();
-            
-            const elements = [];
-            
+        // Initialize D3.js force-directed graph
+        function initGraph() {
+            const container = d3.select('#chart-container');
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+
+            // Create SVG
+            svg = d3.select('#svg-container')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Create container group for zoom/pan
+            g = svg.append('g');
+
+            // Add zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                });
+
+            svg.call(zoom);
+
+            // Create force simulation
+            simulation = d3.forceSimulation()
+                .force('link', d3.forceLink().id(d => d.id).distance(d => 50 + (d.weight || 1) * 30))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(d => (d.radius || 20) + 5));
+
+            // Draw empty graph initially
+            updateGraph();
+        }
+
+        // Update graph visualization
+        function updateGraph() {
+            if (!simulation) return;
+
+            // Remove existing elements
+            g.selectAll('.link').remove();
+            g.selectAll('.node').remove();
+
+            if (nodes.length === 0) return;
+
+            // Create links
+            const link = g.append('g')
+                .attr('class', 'links')
+                .selectAll('line')
+                .data(links)
+                .enter()
+                .append('line')
+                .attr('class', 'link')
+                .attr('stroke-width', d => Math.max(1, Math.min(5, (d.weight || 1) * 2)));
+
+            // Create nodes
+            const node = g.append('g')
+                .attr('class', 'nodes')
+                .selectAll('g.node')
+                .data(nodes)
+                .enter()
+                .append('g')
+                .attr('class', 'node')
+                .call(drag(simulation));
+
+            // Draw node shapes
+            node.each(function(d) {
+                const style = getNodeStyle(d.nodeType);
+                d.radius = style.radius;
+                drawNodeShape(d3.select(this), style);
+            });
+
+            // Add labels
+            node.append('text')
+                .attr('class', 'node-label')
+                .text(d => d.label || d.id)
+                .attr('dy', d => (d.radius || 20) + 15)
+                .attr('dx', 0);
+
+            // Add click handler for nodes
+            node.on('click', function(event, d) {
+                event.stopPropagation();
+                showNodeInfo(d);
+            });
+
+            // Click on background to hide info panel
+            svg.on('click', function(event) {
+                if (event.target === svg.node() || event.target.tagName === 'line') {
+                    document.getElementById('info-panel').style.display = 'none';
+                }
+            });
+
+            // Update positions on simulation tick
+            simulation.nodes(nodes).on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            // Update links
+            simulation.force('link').links(links);
+
+            // Restart simulation
+            simulation.alpha(1).restart();
+        }
+
+        // Drag behavior
+        function drag(simulation) {
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+
+            return d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended);
+        }
+
+        // Transform JSON data to D3.js format
+        function transformGraphData(data) {
+            nodes = [];
+            links = [];
+            nodeMap = new Map();
+
             // Process nodes
             if (data.nodes) {
                 data.nodes.forEach(node => {
@@ -483,213 +498,85 @@
                     const nodeType = attrs.type || 'Unknown';
                     const nodeName = attrs.name || node.id;
                     
-                    // Determine if node should be initially hidden
-                    const isChildNode = nodeType === 'Attribute' || nodeType === 'Operation' || nodeType === 'EnumLiteral';
-                    
-                    elements.push({
-                        group: 'nodes',
-                        data: {
-                            id: node.id,
-                            label: nodeName,
-                            nodeType: nodeType,
-                            attributes: attrs
-                        },
-                        classes: isChildNode ? 'hidden' : ''
-                    });
+                    const d3Node = {
+                        id: node.id,
+                        label: nodeName,
+                        nodeType: nodeType,
+                        attributes: attrs
+                    };
+
+                    nodes.push(d3Node);
+                    nodeMap.set(node.id, d3Node);
                 });
             }
-            
+
             // Process edges
             if (data.edges) {
                 data.edges.forEach(edge => {
-                    const attrs = edge.attributes || {};
-                    const edgeType = attrs.type || 'Unknown';
-                    
-                    // Build edge label
-                    let label = '';
-                    if (edgeType === 'ASSOC') {
-                        label = buildAssociationLabel(attrs);
-                    } else if (edgeType === 'GENERALIZES') {
-                        label = 'extends';
-                    } else if (edgeType === 'REALIZES') {
-                        label = 'implements';
+                    const source = nodeMap.get(edge.node1);
+                    const target = nodeMap.get(edge.node2);
+                    if (source && target) {
+                        links.push({
+                            source: source,
+                            target: target,
+                            weight: edge.weight || 1
+                        });
                     }
-                    
-                    // Check if it's bidirectional
-                    const isBidirectional = checkBidirectional(edge, data.edges);
-                    
-                    // Determine if edge should be initially hidden
-                    const isOwnershipEdge = edgeType === 'OWNS_ATTR' || edgeType === 'OWNS_OP' || 
-                                           edgeType === 'HAS_LITERAL' || edgeType === 'HAS_TYPE';
-                    
-                    elements.push({
-                        group: 'edges',
-                        data: {
-                            id: `${edge.source}-${edge.destination}-${edge.key}`,
-                            source: edge.source,
-                            target: edge.destination,
-                            label: label,
-                            edgeType: edgeType,
-                            isBidirectional: isBidirectional,
-                            attributes: attrs
-                        },
-                        classes: isOwnershipEdge ? 'hidden' : ''
-                    });
                 });
             }
-            
-            // Load into Cytoscape
-            cy.elements().remove();
-            cy.add(elements);
-            
-            // Apply layout
-            applyLayout();
-            
-            // Update stats
+
+            return { nodes, links };
+        }
+
+        // Load graph data
+        function loadGraphData(data) {
+            graphData = data;
+            transformGraphData(data);
+            updateGraph();
             updateStats();
         }
 
-        // Build association label with full details
-        function buildAssociationLabel(attrs) {
-            const roleSrc = attrs.roleSrc || '';
-            const roleDst = attrs.roleDst || '';
-            const multSrc = attrs.multSrc || '';
-            const multDst = attrs.multDst || '';
-            const aggKind = attrs.aggKind || 'none';
-            const customLabel = attrs.label || '';
-            
-            let parts = [];
-            
-            if (customLabel) {
-                parts.push(customLabel);
+        // Fit to screen
+        function fitToScreen() {
+            if (nodes.length === 0) return;
+
+            const bounds = g.node().getBBox();
+            const fullWidth = d3.select('#chart-container').node().clientWidth;
+            const fullHeight = d3.select('#chart-container').node().clientHeight;
+            const width = bounds.width;
+            const height = bounds.height;
+            const midX = bounds.x + width / 2;
+            const midY = bounds.y + height / 2;
+
+            const scale = 0.9 / Math.max(width / fullWidth, height / fullHeight);
+            const translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
+
+            svg.transition()
+                .duration(750)
+                .call(
+                    d3.zoom().transform,
+                    d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
+                );
+        }
+
+        // Reset layout
+        function resetLayout() {
+            if (simulation) {
+                nodes.forEach(d => {
+                    d.fx = null;
+                    d.fy = null;
+                });
+                simulation.alpha(1).restart();
             }
-            
-            if (roleSrc) {
-                parts.push(`${roleSrc}[${multSrc}]`);
-            }
-            
-            if (roleDst) {
-                parts.push(`${roleDst}[${multDst}]`);
-            }
-            
-            let label = parts.join(' <-> ');
-            
-            // Add aggregation indicator
-            if (aggKind === 'shared') {
-                label = '◇ ' + label;
-            } else if (aggKind === 'composite') {
-                label = '◆ ' + label;
-            }
-            
-            return label || 'assoc';
-        }
-
-        // Check if edge is bidirectional
-        function checkBidirectional(edge, allEdges) {
-            // Check if there's a reverse edge with same key
-            return allEdges.some(e => 
-                e.source === edge.destination && 
-                e.destination === edge.source && 
-                e.key === edge.key
-            );
-        }
-
-        // Toggle expand/collapse for a class
-        function toggleExpand(nodeId) {
-            if (expandedClasses.has(nodeId)) {
-                collapseNode(nodeId);
-            } else {
-                expandNode(nodeId);
-            }
-        }
-
-        // Expand a node to show its members
-        function expandNode(nodeId) {
-            expandedClasses.add(nodeId);
-            
-            // Find and show connected member nodes
-            const connectedEdges = cy.edges(`[source="${nodeId}"]`);
-            connectedEdges.forEach(edge => {
-                const edgeType = edge.data('edgeType');
-                if (edgeType === 'OWNS_ATTR' || edgeType === 'OWNS_OP' || edgeType === 'HAS_LITERAL') {
-                    const targetNode = cy.getElementById(edge.data('target'));
-                    targetNode.removeClass('hidden');
-                    edge.removeClass('hidden');
-                }
-            });
-            
-            // Mark node as expanded
-            cy.getElementById(nodeId).addClass('expanded');
-            
-            // Reapply layout
-            applyLayout();
-        }
-
-        // Collapse a node to hide its members
-        function collapseNode(nodeId) {
-            expandedClasses.delete(nodeId);
-            
-            // Find and hide connected member nodes
-            const connectedEdges = cy.edges(`[source="${nodeId}"]`);
-            connectedEdges.forEach(edge => {
-                const edgeType = edge.data('edgeType');
-                if (edgeType === 'OWNS_ATTR' || edgeType === 'OWNS_OP' || edgeType === 'HAS_LITERAL') {
-                    const targetNode = cy.getElementById(edge.data('target'));
-                    targetNode.addClass('hidden');
-                    edge.addClass('hidden');
-                }
-            });
-            
-            // Remove expanded mark
-            cy.getElementById(nodeId).removeClass('expanded');
-            
-            // Reapply layout
-            applyLayout();
-        }
-
-        // Expand all classes
-        function expandAll() {
-            cy.nodes('[nodeType="Class"], [nodeType="Enumeration"], [nodeType="AssociationClass"]').forEach(node => {
-                if (!expandedClasses.has(node.id())) {
-                    expandNode(node.id());
-                }
-            });
-        }
-
-        // Collapse all classes
-        function collapseAll() {
-            Array.from(expandedClasses).forEach(nodeId => {
-                collapseNode(nodeId);
-            });
-        }
-
-        // Apply layout
-        function applyLayout() {
-            const visibleElements = cy.elements().not('.hidden');
-            
-            visibleElements.layout({
-                name: 'cose',
-                animate: true,
-                animationDuration: 300,
-                nodeRepulsion: 8000,
-                idealEdgeLength: 100,
-                edgeElasticity: 100,
-                nestingFactor: 5,
-                gravity: 80,
-                numIter: 1000,
-                initialTemp: 200,
-                coolingFactor: 0.95,
-                minTemp: 1.0
-            }).run();
         }
 
         // Show node information
         function showNodeInfo(node) {
             const infoPanel = document.getElementById('info-panel');
-            const attrs = node.data('attributes') || {};
-            const nodeType = node.data('nodeType');
+            const attrs = node.attributes || {};
+            const nodeType = node.nodeType;
             
-            let html = `<h3>${node.data('label')}</h3>`;
+            let html = `<h3>${node.label || node.id}</h3>`;
             html += `<div class="info-item"><span class="info-label">Type:</span> ${nodeType}</div>`;
             
             if (attrs.isAbstract) {
@@ -731,12 +618,28 @@
         // Update statistics
         function updateStats() {
             const stats = document.getElementById('stats');
-            const nodeCount = cy.nodes().length;
-            const edgeCount = cy.edges().length;
-            const visibleNodes = cy.nodes().not('.hidden').length;
-            
-            stats.textContent = `Nodes: ${visibleNodes}/${nodeCount} | Edges: ${edgeCount}`;
+            if (nodes.length > 0) {
+                const nodeCount = nodes.length;
+                const edgeCount = links.length;
+                stats.textContent = `Nodes: ${nodeCount} | Edges: ${edgeCount}`;
+            } else {
+                stats.textContent = 'No graph loaded';
+            }
         }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (svg) {
+                const container = d3.select('#chart-container');
+                const width = container.node().clientWidth;
+                const height = container.node().clientHeight;
+                svg.attr('width', width).attr('height', height);
+                if (simulation) {
+                    simulation.force('center', d3.forceCenter(width / 2, height / 2));
+                    simulation.alpha(0.3).restart();
+                }
+            }
+        });
 
         // File input handler
         document.getElementById('file-input').addEventListener('change', function(e) {
@@ -755,27 +658,26 @@
             }
         });
 
-        // Control button handlers
-        document.getElementById('fit-btn').addEventListener('click', function() {
-            cy.fit(cy.elements().not('.hidden'), 50);
+
+        // Initialize on load
+        window.addEventListener('load', function() {
+            initGraph();
+            
+            // Try to load default data if available
+            fetch('graph-data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('File not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadGraphData(data);
+                })
+                .catch(error => {
+                    console.log('No default graph-data.json found. Please load a JSON file.');
+                });
         });
-
-        document.getElementById('collapse-all-btn').addEventListener('click', collapseAll);
-        document.getElementById('expand-all-btn').addEventListener('click', expandAll);
-        document.getElementById('reset-layout-btn').addEventListener('click', applyLayout);
-
-        // Initialize
-        initCytoscape();
-
-        // Try to load default data if available
-        fetch('graph-data.json')
-            .then(response => response.json())
-            .then(data => {
-                loadGraphData(data);
-            })
-            .catch(error => {
-                console.log('No default graph-data.json found. Please load a JSON file.');
-            });
     </script>
 </body>
 </html>
