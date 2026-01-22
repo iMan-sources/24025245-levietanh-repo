@@ -74,19 +74,16 @@ func main() async {
         let input: Embedder.EmbedderInput = (spec: spec, candidates: mapping.candidates)
         let distances = try await embedder.loadAndEmbed(input)
         
-        // Step 4: Find top-k nodes with minimum distance
-        let topK = embedder.findTopK(distances: distances, k: k)
-        print("anhlv1: \(topK)")
-//        // Step 5: Map back to node IDs and print results
+        // Step 4: Find top-k unique nodes with minimum distance
+        let topK = embedder.findTopK(distances: distances, nodeIds: mapping.nodeIds, k: k)
+        
+        // Step 5: Print results
         print("\n--- Top \(k) nodes matching spec ---")
         print("Spec: \"\(spec)\"\n")
         
         for (rank, result) in topK.enumerated() {
-            let nodeId = mapping.nodeIds[result.index]
-            let candidateText = mapping.candidates[result.index]
-            print("\(rank + 1). Node: \(nodeId)")
+            print("\(rank + 1). Node: \(result.nodeId)")
             print("   Distance: \(String(format: "%.4f", result.distance))")
-            print("   Text: \"\(candidateText)\"")
             print("")
         }
         

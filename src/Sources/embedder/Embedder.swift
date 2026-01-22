@@ -32,17 +32,30 @@ class Embedder {
         return result
     }
     
-    /// Find top-k indices with minimum cosine distance
+    /// Find top-k unique nodeIds with minimum cosine distance
     /// - Parameters:
     ///   - distances: Array of cosine distances
+    ///   - nodeIds: Array of node IDs corresponding to each distance
     ///   - k: Number of top results to return
-    /// - Returns: Array of (index, distance) tuples sorted by ascending distance
-    func findTopK(distances: [Float], k: Int) -> [(index: Int, distance: Float)] {
-        // Create indexed pairs
-        let indexed = distances.enumerated().map { (index: $0.offset, distance: $0.element) }
+    /// - Returns: Array of (nodeId, distance) tuples sorted by ascending distance, deduplicated by nodeId
+    func findTopK(distances: [Float], nodeIds: [String], k: Int) -> [(nodeId: String, distance: Float)] {
+        // Group by nodeId and keep minimum distance for each
+        var minDistanceByNode: [String: Float] = [:]
         
-        // Sort by distance (ascending - smaller distance = more similar)
-        let sorted = indexed.sorted { $0.distance < $1.distance }
+        for (index, distance) in distances.enumerated() {
+            let nodeId = nodeIds[index]
+            if let existingDistance = minDistanceByNode[nodeId] {
+                // Keep the minimum distance
+                minDistanceByNode[nodeId] = min(existingDistance, distance)
+            } else {
+                minDistanceByNode[nodeId] = distance
+            }
+        }
+        
+        // Convert to array and sort by distance (ascending - smaller distance = more similar)
+        let sorted = minDistanceByNode
+            .map { (nodeId: $0.key, distance: $0.value) }
+            .sorted { $0.distance < $1.distance }
         
         // Take top k
         let topK = Array(sorted.prefix(k))
