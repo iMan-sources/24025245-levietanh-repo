@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "ThesisCLI",
     platforms: [
-        .macOS(.v15)
+        .macOS(.v14)
     ],
     dependencies: [
         // Add your dependencies here
