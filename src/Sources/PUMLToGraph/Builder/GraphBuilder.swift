@@ -1,6 +1,6 @@
 /// Graph Builder
 ///
-/// Builds MultiDiGraph from parsed PUML data.
+/// Builds SimpleGraph from parsed PUML data.
 /// This implementation corresponds to the Python GraphBuilder class in graph_builder.py
 ///
 /// Example usage:
@@ -9,35 +9,35 @@
 
 import Foundation
 
-/// Builds NetworkX-style graph from parsed PUML data
+/// Builds graph from parsed PUML data
 public class GraphBuilder {
     /// The graph being built
-    private var graph: MultiDiGraph
+    private var graph: SimpleGraph
     
     /// Semantic description generator
     private let semanticGenerator: SemanticGenerator
     
     public init() {
-        self.graph = MultiDiGraph()
+        self.graph = SimpleGraph()
         self.semanticGenerator = SemanticGenerator()
     }
     
     // MARK: - Main Build Method
     
-    /// Build MultiDiGraph from parsed data
+    /// Build SimpleGraph from parsed data
     ///
     /// Args:
     ///     parsedData: ParsedData structure from PUMLParser
     ///
     /// Returns:
-    ///     MultiDiGraph with all nodes and edges
+    ///     SimpleGraph with all nodes and edges
     ///
     /// Example:
     ///     let graph = builder.buildGraph(parsedData: parsedData)
     ///     print("Graph has \(graph.numberOfNodes()) nodes")
-    public func buildGraph(parsedData: ParsedData) -> MultiDiGraph {
+    public func buildGraph(parsedData: ParsedData) -> SimpleGraph {
         // Reset graph
-        graph = MultiDiGraph()
+        graph = SimpleGraph()
         
         // Step 1: Add all class/enum nodes
         for (_, classData) in parsedData.classes {
@@ -145,7 +145,7 @@ public class GraphBuilder {
         
         // Add OWNS_ATTR edge: Class → Attribute using typed edge
         let ownsAttrEdge = OwnsAttrEdge()
-        graph.addEdge(from: owner, to: attrId, attributes: ownsAttrEdge.toDictionary())
+        graph.setEdge(from: owner, to: attrId, weight: EdgeWeight.ownsAttr, attributes: ownsAttrEdge.toDictionary())
         
         // Add HAS_TYPE edge if attribute type is a Class or Enumeration in the graph
         if let attrType = attr.type, graph.hasNode(attrType) {
@@ -153,7 +153,7 @@ public class GraphBuilder {
                let nodeType = typeNode.attributes["type"] as? String,
                nodeType == "Class" || nodeType == "Enumeration" {
                 let hasTypeEdge = HasTypeEdge()
-                graph.addEdge(from: attrId, to: attrType, attributes: hasTypeEdge.toDictionary())
+                graph.setEdge(from: attrId, to: attrType, weight: EdgeWeight.hasType, attributes: hasTypeEdge.toDictionary())
             }
         }
     }
@@ -189,7 +189,7 @@ public class GraphBuilder {
         
         // Add OWNS_OP edge: Class → Operation using typed edge
         let ownsOpEdge = OwnsOpEdge()
-        graph.addEdge(from: owner, to: opId, attributes: ownsOpEdge.toDictionary())
+        graph.setEdge(from: owner, to: opId, weight: EdgeWeight.ownsOp, attributes: ownsOpEdge.toDictionary())
     }
     
     // MARK: - Add Enum Literal Node
@@ -208,7 +208,7 @@ public class GraphBuilder {
         
         // Add HAS_LITERAL edge: Enumeration → EnumLiteral using typed edge
         let hasLiteralEdge = HasLiteralEdge()
-        graph.addEdge(from: enumName, to: litId, attributes: hasLiteralEdge.toDictionary())
+        graph.setEdge(from: enumName, to: litId, weight: EdgeWeight.hasLiteral, attributes: hasLiteralEdge.toDictionary())
     }
     
     // MARK: - Add Association Edges
@@ -273,14 +273,10 @@ public class GraphBuilder {
                 semanticDesc: semanticDescRev
             )
             
-            // Handle self-referential edges with different keys
-            if classA == classB {
-                graph.addEdge(from: classA, to: classB, key: "\(edgeId)_fwd", attributes: assocEdgeFwd.toDictionary())
-                graph.addEdge(from: classB, to: classA, key: "\(edgeId)_rev", attributes: assocEdgeRev.toDictionary())
-            } else {
-                graph.addEdge(from: classA, to: classB, key: edgeId, attributes: assocEdgeFwd.toDictionary())
-                graph.addEdge(from: classB, to: classA, key: edgeId, attributes: assocEdgeRev.toDictionary())
-            }
+            // For SimpleGraph: one edge per direction (A→B and B→A)
+            // If edge already exists, addEdge will keep the one with lower weight
+            graph.addEdge(from: classA, to: classB, weight: EdgeWeight.assoc, attributes: assocEdgeFwd.toDictionary())
+            graph.addEdge(from: classB, to: classA, weight: EdgeWeight.assoc, attributes: assocEdgeRev.toDictionary())
             
         } else if navigability == "src→dst" {
             // Source to destination: A → B
@@ -305,7 +301,7 @@ public class GraphBuilder {
                 semanticDesc: semanticDesc
             )
             
-            graph.addEdge(from: classA, to: classB, key: edgeId, attributes: assocEdge.toDictionary())
+            graph.addEdge(from: classA, to: classB, weight: EdgeWeight.assoc, attributes: assocEdge.toDictionary())
             
         } else if navigability == "dst→src" {
             // Destination to source: B → A
@@ -330,7 +326,7 @@ public class GraphBuilder {
                 semanticDesc: semanticDesc
             )
             
-            graph.addEdge(from: classB, to: classA, key: edgeId, attributes: assocEdge.toDictionary())
+            graph.addEdge(from: classB, to: classA, weight: EdgeWeight.assoc, attributes: assocEdge.toDictionary())
         }
     }
     
@@ -351,7 +347,7 @@ public class GraphBuilder {
         let genEdge = GeneralizationEdge(semanticDesc: semanticDesc)
         
         // Add edge from child to parent
-        graph.addEdge(from: child, to: parent, attributes: genEdge.toDictionary())
+        graph.setEdge(from: child, to: parent, weight: EdgeWeight.generalizes, attributes: genEdge.toDictionary())
     }
     
     // MARK: - Add Realization Edge
@@ -368,7 +364,7 @@ public class GraphBuilder {
         let realEdge = RealizationEdge()
         
         // Add edge from class to interface
-        graph.addEdge(from: className, to: interfaceName, attributes: realEdge.toDictionary())
+        graph.setEdge(from: className, to: interfaceName, weight: EdgeWeight.realizes, attributes: realEdge.toDictionary())
     }
     
     // MARK: - Add Association Class
@@ -454,8 +450,8 @@ public class GraphBuilder {
             semanticDesc: descARev
         )
         
-        graph.addEdge(from: classA, to: assocClassName, key: edgeIdA, attributes: assocEdgeAFwd.toDictionary())
-        graph.addEdge(from: assocClassName, to: classA, key: edgeIdA, attributes: assocEdgeARev.toDictionary())
+        graph.setEdge(from: classA, to: assocClassName, weight: EdgeWeight.assoc, attributes: assocEdgeAFwd.toDictionary())
+        graph.setEdge(from: assocClassName, to: classA, weight: EdgeWeight.assoc, attributes: assocEdgeARev.toDictionary())
         
         // B <-> AssociationClass
         let edgeIdB = "e\(graph.numberOfEdges())"
@@ -504,8 +500,8 @@ public class GraphBuilder {
             semanticDesc: descBRev
         )
         
-        graph.addEdge(from: classB, to: assocClassName, key: edgeIdB, attributes: assocEdgeBFwd.toDictionary())
-        graph.addEdge(from: assocClassName, to: classB, key: edgeIdB, attributes: assocEdgeBRev.toDictionary())
+        graph.setEdge(from: classB, to: assocClassName, weight: EdgeWeight.assoc, attributes: assocEdgeBFwd.toDictionary())
+        graph.setEdge(from: assocClassName, to: classB, weight: EdgeWeight.assoc, attributes: assocEdgeBRev.toDictionary())
     }
     
     // MARK: - Update Normalized Text

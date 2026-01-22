@@ -20,9 +20,9 @@ public class GraphExtractor {
     /// Extract text candidates from graph nodes for embedding
     /// - For Class/Enumeration nodes: uses normalized_text array (each component becomes a candidate)
     /// - For other nodes: uses semantic_desc string
-    /// - Parameter graph: The MultiDiGraph containing all nodes
+    /// - Parameter graph: The SimpleGraph containing all nodes
     /// - Returns: CandidateMapping with candidates and their corresponding node IDs
-    public func extractDesc(from graph: MultiDiGraph) -> CandidateMapping {
+    public func extractDesc(from graph: SimpleGraph) -> CandidateMapping {
         var candidates: [String] = []
         var nodeIds: [String] = []
         

@@ -15,7 +15,7 @@ import Foundation
 /// Converts PlantUML class diagrams to typed property graphs
 ///
 /// This class provides functionality to parse PlantUML files and convert them
-/// into MultiDiGraph representations, following specific conversion rules.
+/// into SimpleGraph representations, following specific conversion rules.
 ///
 /// Example:
 ///     let converter = PUMLToGraphConverter()
@@ -70,21 +70,21 @@ public class PUMLToGraphConverter {
     
     // MARK: - Graph Building
     
-    /// Convert parsed PUML data to MultiDiGraph
+    /// Convert parsed PUML data to SimpleGraph
     ///
     /// Args:
     ///     parsedData: ParsedData structure containing parsed PUML
     ///
     /// Returns:
-    ///     MultiDiGraph representation of the UML diagram
+    ///     SimpleGraph representation of the UML diagram
     ///
     /// Example:
     ///     let converter = PUMLToGraphConverter()
     ///     let data = try converter.parseFile(filepath: "diagram.puml")
     ///     let graph = converter.buildGraph(parsedData: data)
-    public func buildGraph(parsedData: ParsedData) -> MultiDiGraph {
-        // NOTE: Uses MultiDiGraph to support multiple edges between same node pair
-        // (e.g., multiple associations between two classes with different roles)
+    public func buildGraph(parsedData: ParsedData) -> SimpleGraph {
+        // NOTE: Uses SimpleGraph - if multiple edges exist between same node pair,
+        // the edge with lower weight is kept
         let graph = builder.buildGraph(parsedData: parsedData)
         
         return graph
@@ -92,7 +92,7 @@ public class PUMLToGraphConverter {
     
     // MARK: - Main Conversion Method
     
-    /// Main entry point: parse PUML file and return MultiDiGraph
+    /// Main entry point: parse PUML file and return SimpleGraph
     ///
     /// This method combines parsing and graph building in one step.
     ///
@@ -100,7 +100,7 @@ public class PUMLToGraphConverter {
     ///     filepath: Path to the .puml file to convert
     ///
     /// Returns:
-    ///     MultiDiGraph with warnings stored in graph.metadata["warnings"]
+    ///     SimpleGraph with warnings stored in graph.metadata["warnings"]
     ///
     /// Throws:
     ///     Error if the file cannot be read or parsed
@@ -111,11 +111,11 @@ public class PUMLToGraphConverter {
     ///     if let warnings = graph.metadata["warnings"] as? [String] {
     ///         print("Warnings: \(warnings)")
     ///     }
-    public func convertFile(filepath: String) throws -> MultiDiGraph {
+    public func convertFile(filepath: String) throws -> SimpleGraph {
         // Step 1: Parse the PUML file into structured data
         let parsedData = try parseFile(filepath: filepath)
         
-        // Step 2: Convert parsed data into MultiDiGraph structure
+        // Step 2: Convert parsed data into SimpleGraph structure
         let graph = buildGraph(parsedData: parsedData)
         
         // Step 3: Preserve warnings from parsing phase in the graph metadata
@@ -126,7 +126,7 @@ public class PUMLToGraphConverter {
         return graph
     }
     
-    /// Parse PUML content string and return MultiDiGraph
+    /// Parse PUML content string and return SimpleGraph
     ///
     /// This is a convenience method for parsing PUML content directly
     /// without reading from a file.
@@ -135,7 +135,7 @@ public class PUMLToGraphConverter {
     ///     content: PUML content as a string
     ///
     /// Returns:
-    ///     MultiDiGraph with warnings stored in graph.metadata["warnings"]
+    ///     SimpleGraph with warnings stored in graph.metadata["warnings"]
     ///
     /// Throws:
     ///     Error if the content cannot be parsed
@@ -150,11 +150,11 @@ public class PUMLToGraphConverter {
     ///         @enduml
     ///         """
     ///     let graph = try converter.convertContent(content: pumlContent)
-    public func convertContent(content: String) throws -> MultiDiGraph {
+    public func convertContent(content: String) throws -> SimpleGraph {
         // Step 1: Parse the PUML content into structured data
         let parsedData = try parser.parserPUML(content: content)
         
-        // Step 2: Convert parsed data into MultiDiGraph structure
+        // Step 2: Convert parsed data into SimpleGraph structure
         let graph = buildGraph(parsedData: parsedData)
         
         // Step 3: Preserve warnings
@@ -178,8 +178,8 @@ public class PUMLToGraphConverter {
     ///     let graphs = converter.processDataset(datasetDir: "./diagrams")
     ///     let successful = graphs.filter { $0.value != nil }
     ///     print("Successfully processed \(successful.count) files")
-    public func processDataset(datasetDir: String) -> [String: MultiDiGraph?] {
-        var graphs: [String: MultiDiGraph?] = [:]
+    public func processDataset(datasetDir: String) -> [String: SimpleGraph?] {
+        var graphs: [String: SimpleGraph?] = [:]
         
         // Get all .puml files in directory
         guard let enumerator = FileManager.default.enumerator(atPath: datasetDir) else {
@@ -217,7 +217,7 @@ public class PUMLToGraphConverter {
     /// Get statistics about a converted graph
     ///
     /// Args:
-    ///     graph: MultiDiGraph to analyze
+    ///     graph: SimpleGraph to analyze
     ///
     /// Returns:
     ///     Dictionary with statistics
@@ -225,7 +225,7 @@ public class PUMLToGraphConverter {
     /// Example:
     ///     let stats = converter.getGraphStatistics(graph: graph)
     ///     print("Nodes: \(stats["totalNodes"])")
-    public func getGraphStatistics(graph: MultiDiGraph) -> [String: Any] {
+    public func getGraphStatistics(graph: SimpleGraph) -> [String: Any] {
         let stats = graph.getStatistics()
         
         return [
@@ -255,30 +255,30 @@ public func parsePUMLFile(filepath: String) throws -> ParsedData {
     return try converter.parseFile(filepath: filepath)
 }
 
-/// Convert parsed PUML data to MultiDiGraph (convenience function)
+/// Convert parsed PUML data to SimpleGraph (convenience function)
 ///
 /// Args:
 ///     parsedData: ParsedData structure containing parsed PUML
 ///
 /// Returns:
-///     MultiDiGraph representation of the UML diagram
-public func buildGraph(parsedData: ParsedData) -> MultiDiGraph {
+///     SimpleGraph representation of the UML diagram
+public func buildGraph(parsedData: ParsedData) -> SimpleGraph {
     // Create new instance for stateless operation
     let converter = PUMLToGraphConverter()
     return converter.buildGraph(parsedData: parsedData)
 }
 
-/// Main entry point: parse PUML file and return MultiDiGraph (convenience function)
+/// Main entry point: parse PUML file and return SimpleGraph (convenience function)
 ///
 /// Args:
 ///     filepath: Path to the .puml file to convert
 ///
 /// Returns:
-///     MultiDiGraph with warnings stored in graph.metadata["warnings"]
+///     SimpleGraph with warnings stored in graph.metadata["warnings"]
 ///
 /// Throws:
 ///     Error if the file cannot be read or parsed
-public func pumlToGraph(filepath: String) throws -> MultiDiGraph {
+public func pumlToGraph(filepath: String) throws -> SimpleGraph {
     // Create new instance for stateless operation
     let converter = PUMLToGraphConverter()
     return try converter.convertFile(filepath: filepath)
@@ -291,7 +291,7 @@ public func pumlToGraph(filepath: String) throws -> MultiDiGraph {
 ///
 /// Returns:
 ///     Dictionary mapping filename to graph (nil if processing failed)
-public func processDataset(datasetDir: String) -> [String: MultiDiGraph?] {
+public func processDataset(datasetDir: String) -> [String: SimpleGraph?] {
     // Create new instance for stateless operation
     let converter = PUMLToGraphConverter()
     return converter.processDataset(datasetDir: datasetDir)

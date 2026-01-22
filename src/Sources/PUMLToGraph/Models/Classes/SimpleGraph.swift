@@ -1,14 +1,14 @@
 //
-//  MultiDiGraph.swift
+//  SimpleGraph.swift
 //  ThesisCLI
 //
-//  Created by Le Anh on 21/1/26.
+//  Created by Le Anh on 22/1/26.
 //
 
 import Foundation
-/// A directed graph that allows multiple edges between the same pair of nodes.
-/// This is essential for representing UML associations where two classes can have
-/// multiple different relationships.
+
+/// A simple directed graph that allows only one edge between each pair of nodes.
+/// Each edge has a weight for use in graph algorithms like Steiner Tree.
 
 /// Represents a node in the graph
 public struct GraphNode {
@@ -25,7 +25,7 @@ public struct GraphNode {
     }
 }
 
-/// Represents an edge in the graph
+/// Represents an edge in the simple graph (no key needed, has weight)
 public struct GraphEdge {
     /// Source node ID
     public let source: String
@@ -33,17 +33,17 @@ public struct GraphEdge {
     /// Destination node ID
     public let destination: String
     
-    /// Unique key for this edge (allows multiple edges between same nodes)
-    public let key: String
+    /// Edge weight for graph algorithms
+    public var weight: Double
     
     /// Edge attributes (type, roles, multiplicities, etc.)
     public var attributes: [String: Any]
     
     /// Initialize a graph edge
-    public init(source: String, destination: String, key: String, attributes: [String: Any] = [:]) {
+    public init(source: String, destination: String, weight: Double = 1.0, attributes: [String: Any] = [:]) {
         self.source = source
         self.destination = destination
-        self.key = key
+        self.weight = weight
         self.attributes = attributes
     }
 }
@@ -63,31 +63,40 @@ public struct GraphStatistics {
     public let edgeTypeCount: [String: Int]
 }
 
+/// Edge weight configuration for different relationship types
+public enum EdgeWeight {
+    public static let assoc: Double = 1.0
+    public static let generalizes: Double = 0.8
+    public static let realizes: Double = 0.8
+    public static let hasType: Double = 0.5
+    public static let ownsAttr: Double = 0.3
+    public static let ownsOp: Double = 0.2
+    public static let hasLiteral: Double = 0.1
+}
 
 /// Example:
-///     let graph = MultiDiGraph()
+///     let graph = SimpleGraph()
 ///     graph.addNode("Airport", attributes: ["type": "Class"])
-///     graph.addEdge(from: "Airport", to: "Flight", key: "e0", attributes: ["type": "ASSOC"])
+///     graph.addEdge(from: "Airport", to: "Flight", weight: 1.0, attributes: ["type": "ASSOC"])
 
-/// Main graph structure that holds nodes and edges
-public class MultiDiGraph {
+/// Main graph structure that holds nodes and edges (simple graph - one edge per node pair)
+public class SimpleGraph {
     /// Storage for all nodes in the graph
     private var nodes: [String: GraphNode]
     
-    /// Adjacency list: maps source node -> list of outgoing edges
-    private var outgoingEdges: [String: [GraphEdge]]
+    /// Adjacency map: source -> destination -> edge (only one edge per pair)
+    private var adjacency: [String: [String: GraphEdge]]
     
-    /// Adjacency list: maps destination node -> list of incoming edges
-    private var incomingEdges: [String: [GraphEdge]]
+    /// Reverse adjacency for incoming edges lookup
+    private var reverseAdjacency: [String: [String: GraphEdge]]
     
     /// Global metadata for the graph (e.g., warnings from parsing)
     public var metadata: [String: Any]
     
-    
     public init() {
         self.nodes = [:]
-        self.outgoingEdges = [:]
-        self.incomingEdges = [:]
+        self.adjacency = [:]
+        self.reverseAdjacency = [:]
         self.metadata = [:]
     }
     
@@ -139,7 +148,7 @@ public class MultiDiGraph {
 }
 
 // MARK: - Node Operations
-extension MultiDiGraph {
+extension SimpleGraph {
     /// Add a node to the graph with attributes
     ///
     /// Args:
@@ -152,18 +161,16 @@ extension MultiDiGraph {
     ///         "name": "Airport",
     ///         "isAbstract": false
     ///     ])
-    
-    public func addNode(_ id: String,
-                        attributes: [String: Any] = [:]) {
+    public func addNode(_ id: String, attributes: [String: Any] = [:]) {
         let node = GraphNode(id: id, attributes: attributes)
         nodes[id] = node
         
-        // Initialize edge lists if not present
-        if outgoingEdges[id] == nil {
-            outgoingEdges[id] = []
+        // Initialize adjacency lists if not present
+        if adjacency[id] == nil {
+            adjacency[id] = [:]
         }
-        if incomingEdges[id] == nil {
-            incomingEdges[id] = []
+        if reverseAdjacency[id] == nil {
+            reverseAdjacency[id] = [:]
         }
     }
     
@@ -192,27 +199,28 @@ extension MultiDiGraph {
     public func numberOfNodes() -> Int {
         return nodes.count
     }
-    
 }
 
 // MARK: - Edge Operations
-extension MultiDiGraph {
+extension SimpleGraph {
     /// Add an edge to the graph
+    /// If an edge already exists between source and destination, keeps the one with lower weight.
+    ///
     /// Args:
     ///     from: Source node ID
     ///     to: Destination node ID
-    ///     key: Optional unique key for this edge (for multi-edges)
+    ///     weight: Edge weight (default 1.0)
     ///     attributes: Dictionary of edge attributes
     ///
     /// Example:
-    ///     graph.addEdge(from: "Airport", to: "Flight", key: "e0", attributes: [
+    ///     graph.addEdge(from: "Airport", to: "Flight", weight: 1.0, attributes: [
     ///         "type": "ASSOC",
     ///         "roleSrc": "origin",
     ///         "roleDst": "departingFlights"
     ///     ])
     public func addEdge(from source: String,
                         to destination: String,
-                        key: String? = nil,
+                        weight: Double = 1.0,
                         attributes: [String: Any] = [:]) {
         // Ensure both nodes exist
         if !hasNode(source) {
@@ -222,53 +230,84 @@ extension MultiDiGraph {
             addNode(destination)
         }
         
-        // Create edge with unique key if not provided
-        let edgeKey = key ?? UUID().uuidString
-        let edge = GraphEdge(source: source, destination: destination, key: edgeKey, attributes: attributes)
+        let newEdge = GraphEdge(source: source, destination: destination, weight: weight, attributes: attributes)
         
-        // Add to outgoing edges
-        outgoingEdges[source, default: []].append(edge)
-        
-        // Add to incoming edges
-        incomingEdges[destination, default: []].append(edge)
+        // Check if edge already exists
+        if let existingEdge = adjacency[source]?[destination] {
+            // Keep edge with lower weight (more important relationship)
+            if newEdge.weight < existingEdge.weight {
+                adjacency[source]![destination] = newEdge
+                reverseAdjacency[destination]![source] = newEdge
+            }
+            // If weights are equal, keep existing (first one wins)
+        } else {
+            // Add new edge
+            adjacency[source, default: [:]][destination] = newEdge
+            reverseAdjacency[destination, default: [:]][source] = newEdge
+        }
     }
     
-    /// Get all edges from source to destination
+    /// Add an edge, always replacing existing edge (for compatibility with GraphBuilder)
+    /// Used when we need to ensure the edge is added regardless of weight
+    public func setEdge(from source: String,
+                        to destination: String,
+                        weight: Double = 1.0,
+                        attributes: [String: Any] = [:]) {
+        // Ensure both nodes exist
+        if !hasNode(source) {
+            addNode(source)
+        }
+        if !hasNode(destination) {
+            addNode(destination)
+        }
+        
+        let edge = GraphEdge(source: source, destination: destination, weight: weight, attributes: attributes)
+        adjacency[source, default: [:]][destination] = edge
+        reverseAdjacency[destination, default: [:]][source] = edge
+    }
+    
+    /// Get edge from source to destination
     ///
     /// Args:
     ///     from: Source node ID
     ///     to: Destination node ID
     ///
     /// Returns:
-    ///     Array of edges between the two nodes
-    public func getEdges(from source: String, to destination: String) -> [GraphEdge] {
-        guard let edges = outgoingEdges[source] else { return [] }
-        return edges.filter { $0.destination == destination }
+    ///     The edge if exists, nil otherwise
+    public func getEdge(from source: String, to destination: String) -> GraphEdge? {
+        return adjacency[source]?[destination]
+    }
+    
+    /// Check if an edge exists between two nodes
+    public func hasEdge(from source: String, to destination: String) -> Bool {
+        return adjacency[source]?[destination] != nil
     }
     
     /// Get all outgoing edges from a node
     public func getOutgoingEdges(from source: String) -> [GraphEdge] {
-        return outgoingEdges[source] ?? []
+        guard let edges = adjacency[source] else { return [] }
+        return Array(edges.values)
     }
     
     /// Get all incoming edges to a node
     public func getIncomingEdges(to destination: String) -> [GraphEdge] {
-        return incomingEdges[destination] ?? []
+        guard let edges = reverseAdjacency[destination] else { return [] }
+        return Array(edges.values)
     }
     
     /// Get all edges in the graph
     public func allEdges() -> [GraphEdge] {
-        return outgoingEdges.values.flatMap { $0 }
+        return adjacency.values.flatMap { $0.values }
     }
     
     /// Get the total number of edges in the graph
     public func numberOfEdges() -> Int {
-        return outgoingEdges.values.reduce(0) { $0 + $1.count }
+        return adjacency.values.reduce(0) { $0 + $1.count }
     }
 }
 
 // MARK: - JSON Export
-extension MultiDiGraph {
+extension SimpleGraph {
     /// Convert graph to JSON-serializable dictionary
     ///
     /// Returns:
@@ -297,7 +336,9 @@ extension MultiDiGraph {
             var edgeDict: [String: Any] = [
                 "source": edge.source,
                 "destination": edge.destination,
-                "key": edge.key
+                "weight": edge.weight,
+                // Generate key for compatibility with visualizer (using source-destination as key)
+                "key": "\(edge.source)-\(edge.destination)"
             ]
             
             // Convert attributes to JSON-compatible format
@@ -363,5 +404,3 @@ extension MultiDiGraph {
         try jsonData.write(to: URL(fileURLWithPath: filepath))
     }
 }
-
-
