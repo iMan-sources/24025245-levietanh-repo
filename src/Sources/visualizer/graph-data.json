@@ -1,265 +1,319 @@
 {
-  "edges" : [
-    {
-      "weight" : 0.29999999999999999,
-      "node1" : "Flight",
-      "node2" : "departTime@Flight"
-    },
-    {
-      "node2" : "maxNrPassenger@Flight",
-      "weight" : 0.29999999999999999,
-      "node1" : "Flight"
-    },
-    {
-      "node1" : "Airline",
-      "weight" : 0.29999999999999999,
-      "node2" : "name@Airline"
-    },
-    {
-      "node1" : "Airline",
-      "node2" : "Passenger",
-      "weight" : 1
-    },
-    {
-      "weight" : 0.29999999999999999,
-      "node2" : "duration@Flight",
-      "node1" : "Flight"
-    },
-    {
-      "node1" : "Airport",
-      "node2" : "Flight",
-      "weight" : 1
-    },
-    {
-      "node1" : "Airline",
-      "weight" : 1,
-      "node2" : "Flight"
-    },
-    {
-      "node1" : "Passenger",
-      "node2" : "needsAssistance@Passenger",
-      "weight" : 0.29999999999999999
-    },
-    {
-      "weight" : 0.29999999999999999,
-      "node1" : "Passenger",
-      "node2" : "minAge@Passenger"
-    },
-    {
-      "node2" : "name@Airport",
-      "node1" : "Airport",
-      "weight" : 0.29999999999999999
-    },
-    {
-      "node1" : "Passenger",
-      "weight" : 0.20000000000000001,
-      "node2" : "book(f: Flight)@Passenger"
-    },
-    {
-      "node1" : "Passenger",
-      "weight" : 0.29999999999999999,
-      "node2" : "age@Passenger"
-    },
-    {
-      "node2" : "arrivalTime@Flight",
-      "node1" : "Flight",
-      "weight" : 0.29999999999999999
-    },
-    {
-      "weight" : 1,
-      "node1" : "Flight",
-      "node2" : "Passenger"
-    }
-  ],
   "nodes" : [
     {
+      "id" : "Order",
       "attributes" : {
         "isInterface" : false,
-        "name" : "Airline",
+        "semantic_desc" : "Class order represents a domain entity.",
+        "name" : "Order",
         "type" : "Class",
-        "normalized_text" : [
-          "Class airline represents a domain entity",
-          "Class airline is associated with a collection of multiple flight objects through role airline",
-          "Class airline is associated with a single passenger objects through role airline"
-        ],
         "isAbstract" : false,
-        "semantic_desc" : "Class airline represents a domain entity.",
+        "normalized_text" : [
+          "Class order represents a domain entity",
+          "Class order order product a single product objects through role order"
+        ],
         "stereotypes" : [
 
         ]
-      },
-      "id" : "Airline"
+      }
+    },
+    {
+      "id" : "cancel()@Order",
+      "attributes" : {
+        "owner" : "Order",
+        "semantic_desc" : "cancel is an operation of class order that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule.",
+        "returnType" : "Boolean",
+        "name" : "cancel",
+        "params" : [
+
+        ],
+        "isDerived" : false,
+        "type" : "Operation"
+      }
     },
     {
       "attributes" : {
+        "semantic_desc" : "id is an attribute of class order with data type integer. It represents a numeric value used for calculation. It is used for unique identification.",
+        "attrType" : "Integer",
+        "owner" : "Order",
+        "type" : "Attribute",
+        "name" : "id",
+        "isDerived" : false
+      },
+      "id" : "id@Order"
+    },
+    {
+      "id" : "invoice()@Order",
+      "attributes" : {
+        "type" : "Operation",
+        "owner" : "Order",
+        "isDerived" : false,
+        "semantic_desc" : "invoice is an operation of class order that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule.",
+        "name" : "invoice",
+        "params" : [
+
+        ],
+        "returnType" : "Boolean"
+      }
+    },
+    {
+      "attributes" : {
+        "attrType" : "Integer",
+        "type" : "Attribute",
+        "name" : "id",
+        "isDerived" : false,
+        "owner" : "Product",
+        "semantic_desc" : "id is an attribute of class product with data type integer. It represents a numeric value used for calculation. It is used for unique identification."
+      },
+      "id" : "id@Product"
+    },
+    {
+      "attributes" : {
+        "type" : "Attribute",
+        "owner" : "Product",
+        "semantic_desc" : "stock is an attribute of class product with data type integer. It represents a numeric value used for calculation.",
+        "isDerived" : false,
+        "name" : "stock",
+        "attrType" : "Integer"
+      },
+      "id" : "stock@Product"
+    },
+    {
+      "attributes" : {
+        "type" : "Operation",
+        "name" : "Product",
+        "isDerived" : false,
+        "owner" : "Product",
+        "returnType" : "Boolean",
+        "params" : [
+
+        ],
+        "semantic_desc" : "product is an operation of class product that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule."
+      },
+      "id" : "Product()@Product"
+    },
+    {
+      "id" : "Order(prd: Product, qty: Integer)@Order",
+      "attributes" : {
+        "returnType" : "OclVoid",
+        "semantic_desc" : "order is an operation of class order that accepts inputs prd of type product, qty of type integer and returns ocl void.",
+        "params" : [
+          {
+            "name" : "prd",
+            "type" : "Product"
+          },
+          {
+            "name" : "qty",
+            "type" : "Integer"
+          }
+        ],
+        "owner" : "Order",
+        "name" : "Order",
+        "isDerived" : false,
+        "type" : "Operation"
+      }
+    },
+    {
+      "id" : "state@Order",
+      "attributes" : {
+        "owner" : "Order",
+        "isDerived" : false,
+        "attrType" : "String",
+        "semantic_desc" : "state is an attribute of class order with data type string. It represents textual information.",
+        "name" : "state",
+        "type" : "Attribute"
+      }
+    },
+    {
+      "attributes" : {
+        "normalized_text" : [
+          "Class product represents a domain entity",
+          "Class product order product a single order objects through role product"
+        ],
+        "isAbstract" : false,
         "stereotypes" : [
 
         ],
-        "normalized_text" : [
-          "Class airport represents a domain entity",
-          "Class airport is associated with a collection of multiple flight objects through role origin",
-          "Class airport is associated with a collection of multiple flight objects through role destination"
-        ],
-        "type" : "Class",
-        "isAbstract" : false,
-        "semantic_desc" : "Class airport represents a domain entity.",
         "isInterface" : false,
-        "name" : "Airport"
+        "semantic_desc" : "Class product represents a domain entity.",
+        "type" : "Class",
+        "name" : "Product"
       },
-      "id" : "Airport"
+      "id" : "Product"
     },
     {
-      "id" : "name@Airport",
-      "attributes" : {
-        "semantic_desc" : "name is an attribute of class airport with data type string. It represents textual information.",
-        "name" : "name",
-        "isDerived" : false,
-        "attrType" : "String",
-        "type" : "Attribute",
-        "owner" : "Airport"
-      }
-    },
-    {
-      "id" : "name@Airline",
-      "attributes" : {
-        "name" : "name",
-        "owner" : "Airline",
-        "type" : "Attribute",
-        "attrType" : "String",
-        "semantic_desc" : "name is an attribute of class airline with data type string. It represents textual information.",
-        "isDerived" : false
-      }
-    },
-    {
-      "id" : "duration@Flight",
-      "attributes" : {
-        "semantic_desc" : "duration is an attribute of class flight with data type date. It represents a point in time.",
-        "name" : "duration",
-        "attrType" : "Date",
-        "isDerived" : false,
-        "type" : "Attribute",
-        "owner" : "Flight"
-      }
-    },
-    {
-      "id" : "minAge@Passenger",
-      "attributes" : {
-        "attrType" : "Integer",
-        "semantic_desc" : "min age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation.",
-        "owner" : "Passenger",
-        "name" : "minAge",
-        "type" : "Attribute",
-        "isDerived" : false
-      }
-    },
-    {
-      "id" : "book(f: Flight)@Passenger",
+      "id" : "release(qty: Integer)@Product",
       "attributes" : {
         "params" : [
           {
-            "type" : "Flight",
-            "name" : "f"
+            "type" : "Integer",
+            "name" : "qty"
           }
         ],
+        "name" : "release",
+        "isDerived" : false,
+        "semantic_desc" : "release is an operation of class product that accepts inputs qty of type integer and returns boolean. It checks a condition or validates a rule.",
         "type" : "Operation",
-        "isDerived" : false,
-        "name" : "book",
-        "semantic_desc" : "book is an operation of class passenger that accepts inputs f of type flight and returns void. It performs an action or state change.",
-        "owner" : "Passenger"
+        "returnType" : "Boolean",
+        "owner" : "Product"
       }
     },
     {
-      "id" : "needsAssistance@Passenger",
+      "id" : "quantity@Order",
       "attributes" : {
-        "attrType" : "Boolean",
-        "type" : "Attribute",
-        "name" : "needsAssistance",
-        "semantic_desc" : "needs assistance is an attribute of class passenger with data type boolean. It represents a logical state or flag.",
         "isDerived" : false,
-        "owner" : "Passenger"
-      }
-    },
-    {
-      "attributes" : {
-        "isAbstract" : false,
-        "name" : "Flight",
-        "isInterface" : false,
-        "type" : "Class",
-        "stereotypes" : [
-
-        ],
-        "semantic_desc" : "Class flight represents a domain entity.",
-        "normalized_text" : [
-          "Class flight represents a domain entity",
-          "Class flight is associated with a single airport objects through role departing flights",
-          "Class flight is associated with a single airport objects through role arriving flights",
-          "Class flight is associated with a single airline objects through role flights",
-          "Class flight is associated with a collection of multiple passenger objects through role flight"
-        ]
-      },
-      "id" : "Flight"
-    },
-    {
-      "attributes" : {
-        "type" : "Attribute",
-        "name" : "age",
+        "owner" : "Order",
         "attrType" : "Integer",
-        "isDerived" : false,
-        "owner" : "Passenger",
-        "semantic_desc" : "age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation."
-      },
-      "id" : "age@Passenger"
-    },
-    {
-      "id" : "departTime@Flight",
-      "attributes" : {
-        "name" : "departTime",
-        "owner" : "Flight",
-        "attrType" : "Date",
+        "semantic_desc" : "quantity is an attribute of class order with data type integer. It represents a numeric value used for calculation.",
         "type" : "Attribute",
-        "semantic_desc" : "depart time is an attribute of class flight with data type date. It represents a point in time.",
-        "isDerived" : false
+        "name" : "quantity"
       }
     },
     {
       "attributes" : {
-        "name" : "Passenger",
-        "isInterface" : false,
-        "semantic_desc" : "Class passenger represents a domain entity.",
-        "stereotypes" : [
-
+        "returnType" : "Boolean",
+        "name" : "supply",
+        "owner" : "Product",
+        "isDerived" : false,
+        "params" : [
+          {
+            "name" : "qty",
+            "type" : "Integer"
+          }
         ],
-        "isAbstract" : false,
-        "type" : "Class",
-        "normalized_text" : [
-          "Class passenger represents a domain entity",
-          "Class passenger is associated with a single flight objects through role passengers",
-          "Class passenger is associated with a single airline objects through role ceo"
-        ]
+        "semantic_desc" : "supply is an operation of class product that accepts inputs qty of type integer and returns boolean. It checks a condition or validates a rule.",
+        "type" : "Operation"
       },
-      "id" : "Passenger"
+      "id" : "supply(qty: Integer)@Product"
+    }
+  ],
+  "edges" : [
+    {
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "id@Order",
+      "source" : "Order",
+      "key" : "2AE9E1A6-9831-45FE-A0D7-6364BCCF498A"
+    },
+    {
+      "source" : "Order",
+      "destination" : "quantity@Order",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "E9903DD0-8492-4CC9-BE30-43BA28855E46"
+    },
+    {
+      "key" : "93054EB3-8791-4CC3-9B02-FC5D0811B1F3",
+      "source" : "Order",
+      "destination" : "state@Order",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "key" : "FA7FE27D-A534-4BA1-AC43-5FAFFE9722B7",
+      "destination" : "Order(prd: Product, qty: Integer)@Order",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "source" : "Order"
+    },
+    {
+      "destination" : "cancel()@Order",
+      "key" : "4F03A8F9-3133-4BD6-9E7F-533BFDEB2B2D",
+      "source" : "Order",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "key" : "77DFF0B6-2FD7-47F9-B256-503400CB3277",
+      "source" : "Order",
+      "destination" : "invoice()@Order",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "source" : "Order",
+      "destination" : "Product",
+      "attributes" : {
+        "aggKind" : "none",
+        "navigability" : "bi",
+        "multDst" : "1..1",
+        "semantic_desc" : "Class order order product a single product objects through role order.",
+        "type" : "ASSOC",
+        "multSrc" : "1..1",
+        "id" : "e0",
+        "label" : "OrderProduct",
+        "roleSrc" : "order",
+        "roleDst" : "product"
+      },
+      "key" : "e0"
     },
     {
       "attributes" : {
-        "isDerived" : false,
-        "owner" : "Flight",
-        "semantic_desc" : "max nr passenger is an attribute of class flight with data type integer. It represents a numeric value used for calculation.",
-        "name" : "maxNrPassenger",
-        "attrType" : "Integer",
-        "type" : "Attribute"
+        "type" : "OWNS_ATTR"
       },
-      "id" : "maxNrPassenger@Flight"
+      "source" : "Product",
+      "key" : "B5B93EB9-B993-4B52-82B6-6E6E42944E6B",
+      "destination" : "id@Product"
     },
     {
-      "id" : "arrivalTime@Flight",
+      "source" : "Product",
       "attributes" : {
-        "type" : "Attribute",
-        "isDerived" : false,
-        "owner" : "Flight",
-        "attrType" : "Date",
-        "semantic_desc" : "arrival time is an attribute of class flight with data type date. It represents a point in time.",
-        "name" : "arrivalTime"
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "A9703500-E187-4B35-94FC-F03015C58583",
+      "destination" : "stock@Product"
+    },
+    {
+      "destination" : "Product()@Product",
+      "key" : "4C97C931-7D9D-4FAA-BA98-F475995655C1",
+      "source" : "Product",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "source" : "Product",
+      "destination" : "supply(qty: Integer)@Product",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "key" : "8A10B5A6-8419-4B3F-A248-3C79E4860300"
+    },
+    {
+      "destination" : "release(qty: Integer)@Product",
+      "source" : "Product",
+      "key" : "8434DF07-5055-49FD-B8A9-3809B4DBDAF4",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "source" : "Product",
+      "destination" : "Order",
+      "key" : "e0",
+      "attributes" : {
+        "roleDst" : "order",
+        "label" : "OrderProduct",
+        "semantic_desc" : "Class product order product a single order objects through role product.",
+        "navigability" : "bi",
+        "multDst" : "1..1",
+        "multSrc" : "1..1",
+        "type" : "ASSOC",
+        "id" : "e0",
+        "aggKind" : "none",
+        "roleSrc" : "product"
       }
     }
-  ]
+  ],
+  "metadata" : {
+    "warnings" : [
+
+    ]
+  }
 }

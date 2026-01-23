@@ -6,30 +6,70 @@
 //
 
 import Foundation
-import Embeddings
-import MLTensorUtils
-
 
 @available(macOS 15.0, *)
 class Embedder {
-    var modelBundle: Bert.ModelBundle?
     typealias EmbedderInput = (spec: String, candidates: [String])
-    let texts = [
-        "The cat is black",
-        "The dog is black",
-        "The cat sleeps well"
-    ]
     
-    func loadAndEmbed(_ input: EmbedderInput) async throws -> [Float]{
-        // load model and tokenizer from Hugging Face
-        let modelBundle = try await Bert.loadModelBundle(
-            from: "sentence-transformers/all-MiniLM-L6-v2"
-        )
-        let encodedCandidates = try modelBundle.batchEncode(input.candidates)
-        let encodedSpec = try modelBundle.encode(input.spec)
-        let distance = cosineDistance(encodedSpec, encodedCandidates)
-        let result = await distance.cast(to: Float.self).shapedArray(of: Float.self).scalars
-        return result
+    func loadAndEmbed(_ input: EmbedderInput) async throws -> [Float] {
+        // Create URL for the calculate-distances endpoint
+        guard let url = URL(string: "http://localhost:6868/calculate-distances") else {
+            throw URLError(.badURL)
+        }
+        
+        // Create URLRequest with POST method
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create request payload
+        let requestBody: [String: Any] = [
+            "spec": input.spec,
+            "candidates": input.candidates
+        ]
+        
+        // Encode request body to JSON
+        let jsonData: Data
+        do {
+            jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        } catch {
+            throw NSError(domain: "EmbedderError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode request body to JSON: \(error.localizedDescription)"])
+        }
+        request.httpBody = jsonData
+        
+        // Perform network request
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        // Check HTTP status code
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NSError(domain: "EmbedderError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw NSError(domain: "EmbedderError", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "HTTP request failed with status code \(httpResponse.statusCode)"
+            ])
+        }
+        
+        // Decode JSON response
+        let jsonObject: [String: Any]
+        do {
+            guard let decoded = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw NSError(domain: "EmbedderError", code: 4, userInfo: [NSLocalizedDescriptionKey: "Response is not a valid JSON object"])
+            }
+            jsonObject = decoded
+        } catch {
+            throw NSError(domain: "EmbedderError", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response: \(error.localizedDescription)"])
+        }
+        
+        guard let distancesArray = jsonObject["distances"] as? [NSNumber] else {
+            throw NSError(domain: "EmbedderError", code: 4, userInfo: [NSLocalizedDescriptionKey: "Missing or invalid 'distances' field in response"])
+        }
+        
+        // Convert NSNumber array to Float array
+        let distances = distancesArray.map { $0.floatValue }
+        
+        return distances
     }
     
     /// Find top-k unique nodeIds with minimum cosine distance
