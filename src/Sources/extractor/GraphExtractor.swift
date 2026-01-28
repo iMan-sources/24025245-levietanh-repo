@@ -6,6 +6,15 @@
 //
 import Foundation
 
+/// Internal key used to uniquely identify an association from the perspective
+/// of a given class. This allows multiple associations to the same target
+/// class (with different roles or multiplicities) to be preserved.
+private struct AssociationKey: Hashable {
+    let target: String
+    let role: String?
+    let multiplicity: String
+}
+
 public class GraphExtractor {
     // MARK: - Candidate Mapping for Embedding Search
     
@@ -202,8 +211,10 @@ public class GraphExtractor {
         steinerNodes: Set<String>,
         onlySteinerNodes: Bool
     ) -> [AssociationInfo] {
-        // Use dictionary to deduplicate by target (avoid duplicates from bidirectional associations)
-        var associationsDict: [String: AssociationInfo] = [:]
+        // Use dictionary with composite key to deduplicate only exact duplicates
+        // while still allowing multiple associations to the same target with
+        // different roles or multiplicities.
+        var associationsDict: [AssociationKey: AssociationInfo] = [:]
         
         // 1. Check outgoing ASSOC edges (this class -> other class)
         let outgoingEdges = graph.getOutgoingEdges(from: className)
@@ -219,10 +230,16 @@ public class GraphExtractor {
                         if onlySteinerNodes && !steinerNodes.contains(target) {
                             continue
                         }
-                        // For outgoing edges, use roleSrc and multSrc (this class's role and multiplicity)
-                        let role = edge.attributes["roleSrc"] as? String
-                        let multiplicity = edge.attributes["multSrc"] as? String ?? "0..*"
-                        associationsDict[target] = AssociationInfo(
+                        // For outgoing edges, from this class's perspective we want the
+                        // role and multiplicity at the OTHER end (destination).
+                        let role = edge.attributes["roleDst"] as? String
+                        let multiplicity = edge.attributes["multDst"] as? String ?? "0..*"
+                        let key = AssociationKey(
+                            target: target,
+                            role: role,
+                            multiplicity: multiplicity
+                        )
+                        associationsDict[key] = AssociationInfo(
                             target: target,
                             role: role,
                             multiplicity: multiplicity
@@ -246,12 +263,18 @@ public class GraphExtractor {
                         if onlySteinerNodes && !steinerNodes.contains(source) {
                             continue
                         }
-                        // For incoming edges, use roleDst and multDst (this class's role and multiplicity)
+                        // For incoming edges, from this class's perspective we want the
+                        // role and multiplicity at the OTHER end (source).
+                        let role = edge.attributes["roleSrc"] as? String
+                        let multiplicity = edge.attributes["multSrc"] as? String ?? "0..*"
+                        let key = AssociationKey(
+                            target: source,
+                            role: role,
+                            multiplicity: multiplicity
+                        )
                         // Only add if not already present (deduplication)
-                        if associationsDict[source] == nil {
-                            let role = edge.attributes["roleDst"] as? String
-                            let multiplicity = edge.attributes["multDst"] as? String ?? "0..*"
-                            associationsDict[source] = AssociationInfo(
+                        if associationsDict[key] == nil {
+                            associationsDict[key] = AssociationInfo(
                                 target: source,
                                 role: role,
                                 multiplicity: multiplicity
@@ -262,6 +285,11 @@ public class GraphExtractor {
             }
         }
         
-        return Array(associationsDict.values).sorted { $0.target < $1.target }
+        return Array(associationsDict.values).sorted {
+            if $0.target == $1.target {
+                return ($0.role ?? "") < ($1.role ?? "")
+            }
+            return $0.target < $1.target
+        }
     }
 }

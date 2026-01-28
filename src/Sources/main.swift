@@ -4,9 +4,9 @@ import Rainbow
 // Get the path to the Airport.puml file
 let currentFile = #file
 let currentDir = (currentFile as NSString).deletingLastPathComponent
-let airportPath = (currentDir as NSString).appendingPathComponent("resources/dataset/InvoicingOrders.puml")
+let airportPath = (currentDir as NSString).appendingPathComponent("resources/dataset/Airport.puml")
 // Configuration
-let spec = "The stock of a Product is always a natural number, i.e., it is a positive Integer. This also ensures the definedness of the stock.."
+let spec = "For every flight the name of the airline must be 'KLM'"
 let k = 5  // Number of top results to return
 
 @available(macOS 15.0, *)
