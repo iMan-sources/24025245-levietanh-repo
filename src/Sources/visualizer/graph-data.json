@@ -1,102 +1,155 @@
 {
+  "metadata" : {
+    "warnings" : [
+
+    ]
+  },
+  "edges" : [
+    {
+      "source" : "Product",
+      "key" : "FEAE56A8-C5D0-4860-9583-CCFE5FE5D6E2",
+      "destination" : "id@Product",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "destination" : "stock@Product",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "source" : "Product",
+      "key" : "E6FCDFEF-7B82-4AC2-9227-D1FC07DA9FD8"
+    },
+    {
+      "destination" : "Product()@Product",
+      "key" : "A757E4BB-A83B-415A-B395-0C8E5A422A61",
+      "source" : "Product",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "destination" : "supply(qty: Integer)@Product",
+      "key" : "049A3290-67E1-4A0D-B4E9-8759D868AD83",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "source" : "Product"
+    },
+    {
+      "source" : "Product",
+      "key" : "575D3A28-0B54-49A1-A646-F2C967E7B27B",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "destination" : "release(qty: Integer)@Product"
+    },
+    {
+      "attributes" : {
+        "aggKind" : "none",
+        "roleSrc" : "product",
+        "multSrc" : "1..1",
+        "id" : "e0",
+        "semantic_desc" : "Class product order product a single order objects through role product.",
+        "type" : "ASSOC",
+        "multDst" : "1..1",
+        "navigability" : "bi",
+        "roleDst" : "order",
+        "label" : "OrderProduct"
+      },
+      "key" : "e0",
+      "destination" : "Order",
+      "source" : "Product"
+    },
+    {
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "id@Order",
+      "source" : "Order",
+      "key" : "331B2061-22B9-45EF-9108-4EDC122023ED"
+    },
+    {
+      "key" : "D571D702-5275-40E3-89DF-E1D1EE99D7C4",
+      "source" : "Order",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "quantity@Order"
+    },
+    {
+      "source" : "Order",
+      "destination" : "state@Order",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "518EE085-86BC-4F03-B745-9DB3AF621CC3"
+    },
+    {
+      "destination" : "Order(prd: Product, qty: Integer)@Order",
+      "source" : "Order",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "key" : "58CDE5A9-9CC2-435D-9ABF-837BF69A1B24"
+    },
+    {
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "key" : "5DFE8277-FC29-4EE0-B0F9-55845636CED1",
+      "destination" : "cancel()@Order",
+      "source" : "Order"
+    },
+    {
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "key" : "E443FF0C-2AED-42FF-9EE3-9635EB28E8BB",
+      "destination" : "invoice()@Order",
+      "source" : "Order"
+    },
+    {
+      "destination" : "Product",
+      "source" : "Order",
+      "key" : "e0",
+      "attributes" : {
+        "multDst" : "1..1",
+        "label" : "OrderProduct",
+        "roleDst" : "product",
+        "navigability" : "bi",
+        "type" : "ASSOC",
+        "aggKind" : "none",
+        "id" : "e0",
+        "multSrc" : "1..1",
+        "roleSrc" : "order",
+        "semantic_desc" : "Class order order product a single product objects through role order."
+      }
+    }
+  ],
   "nodes" : [
     {
-      "id" : "Order",
+      "id" : "Product",
       "attributes" : {
-        "isInterface" : false,
-        "semantic_desc" : "Class order represents a domain entity.",
-        "name" : "Order",
-        "type" : "Class",
-        "isAbstract" : false,
-        "normalized_text" : [
-          "Class order represents a domain entity",
-          "Class order order product a single product objects through role order"
-        ],
+        "name" : "Product",
+        "semantic_desc" : "Class product represents a domain entity.",
         "stereotypes" : [
 
-        ]
-      }
-    },
-    {
-      "id" : "cancel()@Order",
-      "attributes" : {
-        "owner" : "Order",
-        "semantic_desc" : "cancel is an operation of class order that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule.",
-        "returnType" : "Boolean",
-        "name" : "cancel",
-        "params" : [
-
         ],
-        "isDerived" : false,
-        "type" : "Operation"
+        "normalized_text" : [
+          "Class product represents a domain entity",
+          "Class product order product a single order objects through role product"
+        ],
+        "isAbstract" : false,
+        "type" : "Class",
+        "isInterface" : false
       }
     },
     {
       "attributes" : {
-        "semantic_desc" : "id is an attribute of class order with data type integer. It represents a numeric value used for calculation. It is used for unique identification.",
-        "attrType" : "Integer",
-        "owner" : "Order",
-        "type" : "Attribute",
-        "name" : "id",
-        "isDerived" : false
-      },
-      "id" : "id@Order"
-    },
-    {
-      "id" : "invoice()@Order",
-      "attributes" : {
-        "type" : "Operation",
         "owner" : "Order",
         "isDerived" : false,
-        "semantic_desc" : "invoice is an operation of class order that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule.",
-        "name" : "invoice",
-        "params" : [
-
-        ],
-        "returnType" : "Boolean"
-      }
-    },
-    {
-      "attributes" : {
-        "attrType" : "Integer",
-        "type" : "Attribute",
-        "name" : "id",
-        "isDerived" : false,
-        "owner" : "Product",
-        "semantic_desc" : "id is an attribute of class product with data type integer. It represents a numeric value used for calculation. It is used for unique identification."
-      },
-      "id" : "id@Product"
-    },
-    {
-      "attributes" : {
-        "type" : "Attribute",
-        "owner" : "Product",
-        "semantic_desc" : "stock is an attribute of class product with data type integer. It represents a numeric value used for calculation.",
-        "isDerived" : false,
-        "name" : "stock",
-        "attrType" : "Integer"
-      },
-      "id" : "stock@Product"
-    },
-    {
-      "attributes" : {
-        "type" : "Operation",
-        "name" : "Product",
-        "isDerived" : false,
-        "owner" : "Product",
-        "returnType" : "Boolean",
-        "params" : [
-
-        ],
-        "semantic_desc" : "product is an operation of class product that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule."
-      },
-      "id" : "Product()@Product"
-    },
-    {
-      "id" : "Order(prd: Product, qty: Integer)@Order",
-      "attributes" : {
-        "returnType" : "OclVoid",
-        "semantic_desc" : "order is an operation of class order that accepts inputs prd of type product, qty of type integer and returns ocl void.",
         "params" : [
           {
             "name" : "prd",
@@ -107,42 +160,128 @@
             "type" : "Integer"
           }
         ],
-        "owner" : "Order",
-        "name" : "Order",
+        "type" : "Operation",
+        "semantic_desc" : "order is an operation of class order that accepts inputs prd of type product, qty of type integer and returns ocl void.",
+        "returnType" : "OclVoid",
+        "name" : "Order"
+      },
+      "id" : "Order(prd: Product, qty: Integer)@Order"
+    },
+    {
+      "id" : "stock@Product",
+      "attributes" : {
+        "attrType" : "Integer",
         "isDerived" : false,
-        "type" : "Operation"
+        "name" : "stock",
+        "semantic_desc" : "stock is an attribute of class product with data type integer. It represents a numeric value used for calculation.",
+        "owner" : "Product",
+        "type" : "Attribute"
       }
+    },
+    {
+      "id" : "id@Product",
+      "attributes" : {
+        "attrType" : "Integer",
+        "type" : "Attribute",
+        "owner" : "Product",
+        "name" : "id",
+        "isDerived" : false,
+        "semantic_desc" : "id is an attribute of class product with data type integer. It represents a numeric value used for calculation. It is used for unique identification."
+      }
+    },
+    {
+      "id" : "id@Order",
+      "attributes" : {
+        "name" : "id",
+        "isDerived" : false,
+        "owner" : "Order",
+        "attrType" : "Integer",
+        "type" : "Attribute",
+        "semantic_desc" : "id is an attribute of class order with data type integer. It represents a numeric value used for calculation. It is used for unique identification."
+      }
+    },
+    {
+      "attributes" : {
+        "returnType" : "Boolean",
+        "name" : "release",
+        "isDerived" : false,
+        "semantic_desc" : "release is an operation of class product that accepts inputs qty of type integer and returns boolean. It checks a condition or validates a rule.",
+        "params" : [
+          {
+            "type" : "Integer",
+            "name" : "qty"
+          }
+        ],
+        "owner" : "Product",
+        "type" : "Operation"
+      },
+      "id" : "release(qty: Integer)@Product"
+    },
+    {
+      "attributes" : {
+        "isDerived" : false,
+        "params" : [
+
+        ],
+        "type" : "Operation",
+        "returnType" : "Boolean",
+        "semantic_desc" : "product is an operation of class product that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule.",
+        "owner" : "Product",
+        "name" : "Product"
+      },
+      "id" : "Product()@Product"
     },
     {
       "id" : "state@Order",
       "attributes" : {
         "owner" : "Order",
-        "isDerived" : false,
-        "attrType" : "String",
         "semantic_desc" : "state is an attribute of class order with data type string. It represents textual information.",
         "name" : "state",
+        "isDerived" : false,
+        "attrType" : "String",
         "type" : "Attribute"
       }
     },
     {
       "attributes" : {
-        "normalized_text" : [
-          "Class product represents a domain entity",
-          "Class product order product a single order objects through role product"
-        ],
-        "isAbstract" : false,
-        "stereotypes" : [
+        "returnType" : "Boolean",
+        "isDerived" : false,
+        "name" : "invoice",
+        "params" : [
 
         ],
-        "isInterface" : false,
-        "semantic_desc" : "Class product represents a domain entity.",
-        "type" : "Class",
-        "name" : "Product"
+        "semantic_desc" : "invoice is an operation of class order that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule.",
+        "owner" : "Order",
+        "type" : "Operation"
       },
-      "id" : "Product"
+      "id" : "invoice()@Order"
     },
     {
-      "id" : "release(qty: Integer)@Product",
+      "id" : "quantity@Order",
+      "attributes" : {
+        "semantic_desc" : "quantity is an attribute of class order with data type integer. It represents a numeric value used for calculation.",
+        "name" : "quantity",
+        "type" : "Attribute",
+        "attrType" : "Integer",
+        "owner" : "Order",
+        "isDerived" : false
+      }
+    },
+    {
+      "id" : "cancel()@Order",
+      "attributes" : {
+        "returnType" : "Boolean",
+        "name" : "cancel",
+        "params" : [
+
+        ],
+        "isDerived" : false,
+        "type" : "Operation",
+        "owner" : "Order",
+        "semantic_desc" : "cancel is an operation of class order that accepts inputs no inputs and returns boolean. It checks a condition or validates a rule."
+      }
+    },
+    {
       "attributes" : {
         "params" : [
           {
@@ -150,170 +289,31 @@
             "name" : "qty"
           }
         ],
-        "name" : "release",
         "isDerived" : false,
-        "semantic_desc" : "release is an operation of class product that accepts inputs qty of type integer and returns boolean. It checks a condition or validates a rule.",
+        "semantic_desc" : "supply is an operation of class product that accepts inputs qty of type integer and returns boolean. It checks a condition or validates a rule.",
+        "name" : "supply",
         "type" : "Operation",
         "returnType" : "Boolean",
         "owner" : "Product"
-      }
-    },
-    {
-      "id" : "quantity@Order",
-      "attributes" : {
-        "isDerived" : false,
-        "owner" : "Order",
-        "attrType" : "Integer",
-        "semantic_desc" : "quantity is an attribute of class order with data type integer. It represents a numeric value used for calculation.",
-        "type" : "Attribute",
-        "name" : "quantity"
-      }
-    },
-    {
-      "attributes" : {
-        "returnType" : "Boolean",
-        "name" : "supply",
-        "owner" : "Product",
-        "isDerived" : false,
-        "params" : [
-          {
-            "name" : "qty",
-            "type" : "Integer"
-          }
-        ],
-        "semantic_desc" : "supply is an operation of class product that accepts inputs qty of type integer and returns boolean. It checks a condition or validates a rule.",
-        "type" : "Operation"
       },
       "id" : "supply(qty: Integer)@Product"
-    }
-  ],
-  "edges" : [
-    {
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "destination" : "id@Order",
-      "source" : "Order",
-      "key" : "2AE9E1A6-9831-45FE-A0D7-6364BCCF498A"
-    },
-    {
-      "source" : "Order",
-      "destination" : "quantity@Order",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "key" : "E9903DD0-8492-4CC9-BE30-43BA28855E46"
-    },
-    {
-      "key" : "93054EB3-8791-4CC3-9B02-FC5D0811B1F3",
-      "source" : "Order",
-      "destination" : "state@Order",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      }
-    },
-    {
-      "key" : "FA7FE27D-A534-4BA1-AC43-5FAFFE9722B7",
-      "destination" : "Order(prd: Product, qty: Integer)@Order",
-      "attributes" : {
-        "type" : "OWNS_OP"
-      },
-      "source" : "Order"
-    },
-    {
-      "destination" : "cancel()@Order",
-      "key" : "4F03A8F9-3133-4BD6-9E7F-533BFDEB2B2D",
-      "source" : "Order",
-      "attributes" : {
-        "type" : "OWNS_OP"
-      }
-    },
-    {
-      "key" : "77DFF0B6-2FD7-47F9-B256-503400CB3277",
-      "source" : "Order",
-      "destination" : "invoice()@Order",
-      "attributes" : {
-        "type" : "OWNS_OP"
-      }
-    },
-    {
-      "source" : "Order",
-      "destination" : "Product",
-      "attributes" : {
-        "aggKind" : "none",
-        "navigability" : "bi",
-        "multDst" : "1..1",
-        "semantic_desc" : "Class order order product a single product objects through role order.",
-        "type" : "ASSOC",
-        "multSrc" : "1..1",
-        "id" : "e0",
-        "label" : "OrderProduct",
-        "roleSrc" : "order",
-        "roleDst" : "product"
-      },
-      "key" : "e0"
     },
     {
       "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "source" : "Product",
-      "key" : "B5B93EB9-B993-4B52-82B6-6E6E42944E6B",
-      "destination" : "id@Product"
-    },
-    {
-      "source" : "Product",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "key" : "A9703500-E187-4B35-94FC-F03015C58583",
-      "destination" : "stock@Product"
-    },
-    {
-      "destination" : "Product()@Product",
-      "key" : "4C97C931-7D9D-4FAA-BA98-F475995655C1",
-      "source" : "Product",
-      "attributes" : {
-        "type" : "OWNS_OP"
-      }
-    },
-    {
-      "source" : "Product",
-      "destination" : "supply(qty: Integer)@Product",
-      "attributes" : {
-        "type" : "OWNS_OP"
-      },
-      "key" : "8A10B5A6-8419-4B3F-A248-3C79E4860300"
-    },
-    {
-      "destination" : "release(qty: Integer)@Product",
-      "source" : "Product",
-      "key" : "8434DF07-5055-49FD-B8A9-3809B4DBDAF4",
-      "attributes" : {
-        "type" : "OWNS_OP"
-      }
-    },
-    {
-      "source" : "Product",
-      "destination" : "Order",
-      "key" : "e0",
-      "attributes" : {
-        "roleDst" : "order",
-        "label" : "OrderProduct",
-        "semantic_desc" : "Class product order product a single order objects through role product.",
-        "navigability" : "bi",
-        "multDst" : "1..1",
-        "multSrc" : "1..1",
-        "type" : "ASSOC",
-        "id" : "e0",
-        "aggKind" : "none",
-        "roleSrc" : "product"
-      }
-    }
-  ],
-  "metadata" : {
-    "warnings" : [
+        "type" : "Class",
+        "normalized_text" : [
+          "Class order represents a domain entity",
+          "Class order order product a single product objects through role order"
+        ],
+        "isAbstract" : false,
+        "semantic_desc" : "Class order represents a domain entity.",
+        "name" : "Order",
+        "isInterface" : false,
+        "stereotypes" : [
 
-    ]
-  }
+        ]
+      },
+      "id" : "Order"
+    }
+  ]
 }

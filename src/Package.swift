@@ -11,6 +11,7 @@ let package = Package(
     dependencies: [
         // Add your dependencies here
         // .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
+        .package(url: "https://github.com/onevcat/Rainbow", from: "4.0.0")
 
     ],
     targets: [
@@ -19,6 +20,7 @@ let package = Package(
             dependencies: [
                 // Add your target dependencies here
                 // .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Rainbow", package: "Rainbow"),
             ],
             path: "Sources"
         ),
