@@ -2,7 +2,7 @@ import Foundation
 
 /// Global configuration for OpenAI access.
 /// - Note: Set these from your application bootstrap before issuing any requests.
-public var OPENAI_API_KEY: String = "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"
+public var OPENAI_API_KEY: String = ""
 public var OPENAI_MODEL: String = "gpt-4"
 
 /// Errors that can occur while requesting a completion from the LLM.
