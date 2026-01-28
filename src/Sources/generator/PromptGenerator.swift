@@ -6,13 +6,31 @@
 //
 
 import Foundation
-
+public typealias Prompt = (system: String, user: String)
 public class PromptGenerator {
-    
+    public func generatePrompt(from classInfos: [ClassInfo], spec: String?=nil) -> Prompt? {
+        guard let spec = spec else {
+            return nil
+        }
+        
+        let systemPrompt = """
+        As a system designer with expertise in UML modeling and OCL constraints, your role is to assist the user in writing OCL constraints. The user will provide you with the following information:
+        (1) The specification in natural language.
+        (2) The UML classes and their properties (attributes, operations, associations).
+        Your objective is to generate a valid OCL constraint according to the provided UML classes. Please do not provide explanation. Put your solution in a <OCL> tag.
+        """
+        let userGeneratedPrompt = generateUserPrompt(from: classInfos)
+        let userPrompt = "-- OCL specification\n \(spec) \n\n\(userGeneratedPrompt)\n-- OCL constraint"
+        
+        let prompt: Prompt = (systemPrompt, userPrompt)
+        
+        return prompt
+        
+    }
     /// Generate prompt string from array of ClassInfo
     /// - Parameter classInfos: Array of ClassInfo to format
     /// - Returns: Formatted string prompt following the template
-    public func generatePrompt(from classInfos: [ClassInfo]) -> String {
+    public func generateUserPrompt(from classInfos: [ClassInfo]) -> String {
         guard !classInfos.isEmpty else {
             return ""
         }

@@ -8,7 +8,6 @@ let airportPath = (currentDir as NSString).appendingPathComponent("resources/dat
 // Configuration
 let spec = "For every flight the name of the airline must be 'KLM'"
 let k = 5  // Number of top results to return
-
 @available(macOS 15.0, *)
 func main() async {
     // IMPORTANT: Xcode's console does NOT support ANSI color codes
@@ -87,20 +86,20 @@ func main() async {
         
 
         // MARK: Step 8: Generate prompt for LLM
+        print("\n--- Prompt ---".applyingAll(color: .named(.green), styles: [.bold]))
         let promptGenerator = PromptGenerator()
-        let userPrompt = promptGenerator.generatePrompt(from: classInfos)
-        print("User prompt: \(userPrompt)".applyingAll(color: .named(.green), styles: [.bold]))
+        guard let prompt = promptGenerator.generatePrompt(from: classInfos, spec: spec) else {
+            print("Prompt is nil".applyingAll(color: .named(.lightRed), styles: [.bold]))
+            return
+        }
+        print(prompt.user.applyingAll(color: .named(.yellow), styles: [.bold]))
 
-        // TODO: concate prompt with system prompt
-        let systemPrompt = """
-        As a system designer with expertise in UML modeling and OCL constraints, your role is to assist the user in writing OCL constraints. The user will provide you with the following information:
-        (1) The specification in natural language.
-        (2) The UML classes and their properties (attributes, operations, associations).
-        Your objective is to generate a valid OCL constraint according to the provided UML classes. Please do not provide explanation. Put your solution in a <OCL> tag.
-        """
-        let fullPrompt = "\(systemPrompt)\n\n-- OCL specification\n \(spec) \n\n\(userPrompt)\n-- OCL constraint"
-
-        print(fullPrompt.applyingAll(color: .named(.yellow), styles: [.bold]))
+        // MARK: Step 9: Call LLM to generate OCL constraint
+        let llmRequester = LLMRequester()
+        let oclConstraint = try await llmRequester.request(prompt: prompt)
+        print("--- LLM Response ---".applyingAll(color: .named(.green), styles: [.bold]))
+        
+        print(oclConstraint.applyingAll(color: .named(.yellow), styles: [.bold]))
     } catch {
         print("Error: \(error.localizedDescription)")
     }
