@@ -4,9 +4,9 @@ import Rainbow
 // Get the path to the Airport.puml file
 let currentFile = #file
 let currentDir = (currentFile as NSString).deletingLastPathComponent
-let airportPath = (currentDir as NSString).appendingPathComponent("resources/dataset/Airport.puml")
+let airportPath = (currentDir as NSString).appendingPathComponent("resources/dataset/Royal&Loyal.puml")
 // Configuration
-let spec = "For every flight the name of the airline must be 'KLM'"
+let spec = "Every customer who enters a loyalty program must be of legal age."
 let k = 5  // Number of top results to return
 @available(macOS 15.0, *)
 func main() async {
@@ -14,6 +14,36 @@ func main() async {
     // Colors will only appear when running from Terminal (not Xcode console)
     // To see colors: Run the program from Terminal using: swift run
     // Rainbow automatically detects terminal support and enables/disables colors accordingly
+    
+    // MARK: Example: Parse specification file using SpecParser
+    do {
+        let specParser = SpecParser()
+        let domains = try specParser.parseDefaultSpecFile()
+        let collection = SpecCollection(domains: domains)
+        
+        print("===== SpecParser Example =====".applyingAll(color: .named(.cyan), styles: [.bold]))
+        print("Loaded \(domains.count) domains with \(collection.allSpecifications().count) total specifications")
+        print("Specifications with OCL constraints: \(collection.allWithOCL().count)\n")
+        
+        // Print first domain as example
+        if let firstDomain = domains.first {
+            print("Example Domain: \(firstDomain.name)".applyingAll(color: .named(.yellow), styles: [.bold]))
+            print("  Total specs: \(firstDomain.specifications.count)")
+            let withOCL = firstDomain.specifications.filter { $0.oclConstraint != nil }
+            print("  With OCL: \(withOCL.count)")
+            if let firstSpec = firstDomain.specifications.first {
+                print("  Example spec: \"\(firstSpec.naturalLanguage)\"")
+                if let ocl = firstSpec.oclConstraint {
+                    print("    OCL: \(ocl)")
+                } else {
+                    print("    OCL: N/A")
+                }
+            }
+        }
+        print("\n")
+    } catch {
+        print("Warning: Failed to parse specification file: \(error.localizedDescription)".applyingAll(color: .named(.yellow), styles: [.bold]))
+    }
     
     print("===== Airport PUML Example =====")
     let converter = PUMLToGraphConverter()
@@ -67,8 +97,9 @@ func main() async {
         let steinerFinder = SteinerTreeFinder(graph: undirectedGraph)
         let steinerResult = steinerFinder.findSteinerTree(terminals: terminalNodes)
         
-         print("\nSteiner Tree Results:".applyingAll(color: .named(.green), styles: [.bold]))
+         print("\n--- Steiner Tree Results: ---".applyingAll(color: .named(.green), styles: [.bold]))
          print("Total Cost: \(String(format: "%.4f", steinerResult.totalCost))")
+         print("Time Consumed: \(String(format: "%.6f", steinerResult.timeConsumed)) seconds")
          print("Nodes in Steiner Tree: \(steinerResult.nodes.count)")
          print("\nNodes:")
          for node in steinerResult.nodes.sorted() {
@@ -97,7 +128,7 @@ func main() async {
         // MARK: Step 9: Call LLM to generate OCL constraint
         let llmRequester = LLMRequester()
         let oclConstraint = try await llmRequester.request(prompt: prompt)
-        print("--- LLM Response ---".applyingAll(color: .named(.green), styles: [.bold]))
+        print("\n--- LLM Response ---".applyingAll(color: .named(.green), styles: [.bold]))
         
         print(oclConstraint.applyingAll(color: .named(.yellow), styles: [.bold]))
     } catch {

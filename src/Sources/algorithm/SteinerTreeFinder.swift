@@ -20,10 +20,13 @@ public struct SteinerTreeResult {
     /// Total cost/weight of the Steiner tree
     public let totalCost: Double
     
-    public init(nodes: Set<String>, edges: [(String, String, Double)], totalCost: Double) {
+    public let timeConsumed: Double
+    
+    public init(nodes: Set<String>, edges: [(String, String, Double)], totalCost: Double, timeConsumed: Double = 0) {
         self.nodes = nodes
         self.edges = edges
         self.totalCost = totalCost
+        self.timeConsumed = timeConsumed
     }
 }
 
@@ -46,14 +49,17 @@ public class SteinerTreeFinder {
     ///     SteinerTreeResult containing nodes, edges, and total cost
     public func findSteinerTree(terminals: [String]) -> SteinerTreeResult {
         guard !terminals.isEmpty else {
-            return SteinerTreeResult(nodes: [], edges: [], totalCost: 0.0)
+            return SteinerTreeResult(nodes: [], edges: [], totalCost: 0.0, timeConsumed: 0.0)
         }
         
         // Validate all terminals exist in graph
         let validTerminals = terminals.filter { graph.hasNode($0) }
         guard !validTerminals.isEmpty else {
-            return SteinerTreeResult(nodes: [], edges: [], totalCost: 0.0)
+            return SteinerTreeResult(nodes: [], edges: [], totalCost: 0.0, timeConsumed: 0.0)
         }
+        
+        // Start timing the Steiner tree computation
+        let startTime = DispatchTime.now()
         
         // Set of vertices in the Steiner tree
         var T: Set<String> = []
@@ -185,7 +191,12 @@ public class SteinerTreeFinder {
             }
         }
         
-        return SteinerTreeResult(nodes: T, edges: edges, totalCost: totalCost)
+        // Calculate elapsed time in seconds
+        let endTime = DispatchTime.now()
+        let nanoTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
+        let timeConsumed = Double(nanoTime) / 1_000_000_000.0
+        
+        return SteinerTreeResult(nodes: T, edges: edges, totalCost: totalCost, timeConsumed: timeConsumed)
     }
     
     // MARK: - Helper Methods

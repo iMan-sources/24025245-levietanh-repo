@@ -1,440 +1,1349 @@
 {
+  "nodes" : [
+    {
+      "id" : "LoyaltyAccount",
+      "attributes" : {
+        "normalized_text" : [
+          "Class loyalty account represents a domain entity",
+          "Class loyalty account is associated with a collection of multiple transaction objects through role account"
+        ],
+        "name" : "LoyaltyAccount",
+        "isInterface" : false,
+        "semantic_desc" : "Class loyalty account represents a domain entity.",
+        "type" : "Class",
+        "isAbstract" : false,
+        "stereotypes" : [
+
+        ]
+      }
+    },
+    {
+      "id" : "title@Customer",
+      "attributes" : {
+        "attrType" : "String",
+        "name" : "title",
+        "semantic_desc" : "title is an attribute of class customer with data type string. It represents textual information.",
+        "isDerived" : false,
+        "owner" : "Customer",
+        "type" : "Attribute"
+      }
+    },
+    {
+      "id" : "numberOfCustomers@ProgramPartner",
+      "attributes" : {
+        "semantic_desc" : "number of customers is an attribute of class program partner with data type integer. It represents a numeric value used for calculation.",
+        "name" : "numberOfCustomers",
+        "isDerived" : false,
+        "owner" : "ProgramPartner",
+        "type" : "Attribute",
+        "attrType" : "Integer"
+      }
+    },
+    {
+      "attributes" : {
+        "name" : "numbers",
+        "attrType" : "Integer",
+        "semantic_desc" : "numbers is an attribute of class loyalty account with data type integer. It represents a numeric value used for calculation.",
+        "owner" : "LoyaltyAccount",
+        "type" : "Attribute",
+        "isDerived" : false
+      },
+      "id" : "numbers@LoyaltyAccount"
+    },
+    {
+      "id" : "Year@Date",
+      "attributes" : {
+        "owner" : "Date",
+        "name" : "Year",
+        "type" : "Attribute",
+        "semantic_desc" : "year is an attribute of class date with data type integer. It represents a numeric value used for calculation.",
+        "attrType" : "Integer",
+        "isDerived" : false
+      }
+    },
+    {
+      "id" : "Transaction",
+      "attributes" : {
+        "isInterface" : false,
+        "normalized_text" : [
+          "Class transaction represents a domain entity",
+          "Class transaction is associated with a single customer card objects through role transactions",
+          "Class transaction is associated with a single loyalty account objects through role transactions",
+          "Class transaction is associated with a single service objects through role transactions"
+        ],
+        "isAbstract" : false,
+        "type" : "Class",
+        "semantic_desc" : "Class transaction represents a domain entity.",
+        "name" : "Transaction",
+        "stereotypes" : [
+
+        ]
+      }
+    },
+    {
+      "id" : "name@ServiceLevel",
+      "attributes" : {
+        "semantic_desc" : "name is an attribute of class service level with data type string. It represents textual information.",
+        "isDerived" : false,
+        "type" : "Attribute",
+        "name" : "name",
+        "owner" : "ServiceLevel",
+        "attrType" : "String"
+      }
+    },
+    {
+      "id" : "Minute@Date",
+      "attributes" : {
+        "isDerived" : false,
+        "semantic_desc" : "minute is an attribute of class date with data type integer. It represents a numeric value used for calculation.",
+        "owner" : "Date",
+        "attrType" : "Integer",
+        "type" : "Attribute",
+        "name" : "Minute"
+      }
+    },
+    {
+      "attributes" : {
+        "owner" : "LoyaltyAccount",
+        "params" : [
+
+        ],
+        "name" : "burn",
+        "semantic_desc" : "burn is an operation of class loyalty account that accepts inputs no inputs and returns void. It performs an action or state change.",
+        "isDerived" : false,
+        "type" : "Operation"
+      },
+      "id" : "burn()@LoyaltyAccount"
+    },
+    {
+      "id" : "pointsEarned@Service",
+      "attributes" : {
+        "semantic_desc" : "points earned is an attribute of class service with data type integer. It represents a numeric value used for calculation.",
+        "attrType" : "Integer",
+        "isDerived" : false,
+        "type" : "Attribute",
+        "name" : "pointsEarned",
+        "owner" : "Service"
+      }
+    },
+    {
+      "id" : "Now@Date",
+      "attributes" : {
+        "semantic_desc" : "now is an attribute of class date with data type integer. It represents a numeric value used for calculation.",
+        "type" : "Attribute",
+        "owner" : "Date",
+        "isDerived" : false,
+        "name" : "Now",
+        "attrType" : "Integer"
+      }
+    },
+    {
+      "id" : "getServices()@LoyaltyProgram",
+      "attributes" : {
+        "owner" : "LoyaltyProgram",
+        "semantic_desc" : "get services is an operation of class loyalty program that accepts inputs no inputs and returns service.",
+        "type" : "Operation",
+        "name" : "getServices",
+        "returnType" : "Service",
+        "params" : [
+
+        ],
+        "isDerived" : false
+      }
+    },
+    {
+      "id" : "condition@Service",
+      "attributes" : {
+        "semantic_desc" : "condition is an attribute of class service with data type boolean. It represents a logical state or flag.",
+        "name" : "condition",
+        "attrType" : "Boolean",
+        "owner" : "Service",
+        "isDerived" : false,
+        "type" : "Attribute"
+      }
+    },
+    {
+      "attributes" : {
+        "attrType" : "Date",
+        "isDerived" : false,
+        "type" : "Attribute",
+        "owner" : "CustomerCard",
+        "semantic_desc" : "good thru is an attribute of class customer card with data type date. It represents a point in time.",
+        "name" : "goodThru"
+      },
+      "id" : "goodThru@CustomerCard"
+    },
+    {
+      "id" : "date@Transaction",
+      "attributes" : {
+        "attrType" : "String",
+        "isDerived" : false,
+        "type" : "Attribute",
+        "owner" : "Transaction",
+        "name" : "date",
+        "semantic_desc" : "date is an attribute of class transaction with data type string. It represents textual information."
+      }
+    },
+    {
+      "id" : "ProgramPartner",
+      "attributes" : {
+        "type" : "Class",
+        "isInterface" : false,
+        "normalized_text" : [
+          "Class program partner represents a domain entity",
+          "Class program partner is associated with a collection of multiple loyalty program objects through role partners",
+          "Class program partner is associated with a collection of multiple service objects through role partner"
+        ],
+        "name" : "ProgramPartner",
+        "isAbstract" : false,
+        "stereotypes" : [
+
+        ],
+        "semantic_desc" : "Class program partner represents a domain entity."
+      }
+    },
+    {
+      "attributes" : {
+        "semantic_desc" : "valid is an attribute of class customer card with data type boolean. It represents a logical state or flag. It is used for unique identification.",
+        "name" : "valid",
+        "isDerived" : false,
+        "attrType" : "Boolean",
+        "owner" : "CustomerCard",
+        "type" : "Attribute"
+      },
+      "id" : "valid@CustomerCard"
+    },
+    {
+      "id" : "Month@Date",
+      "attributes" : {
+        "attrType" : "Integer",
+        "semantic_desc" : "month is an attribute of class date with data type integer. It represents a numeric value used for calculation.",
+        "type" : "Attribute",
+        "name" : "Month",
+        "owner" : "Date",
+        "isDerived" : false
+      }
+    },
+    {
+      "id" : "name@ProgramPartner",
+      "attributes" : {
+        "name" : "name",
+        "type" : "Attribute",
+        "attrType" : "String",
+        "isDerived" : false,
+        "owner" : "ProgramPartner",
+        "semantic_desc" : "name is an attribute of class program partner with data type string. It represents textual information."
+      }
+    },
+    {
+      "attributes" : {
+        "name" : "isEmpty",
+        "isDerived" : false,
+        "semantic_desc" : "is empty is an operation of class loyalty account that accepts inputs no inputs and returns void. It performs an action or state change.",
+        "owner" : "LoyaltyAccount",
+        "params" : [
+
+        ],
+        "type" : "Operation"
+      },
+      "id" : "isEmpty()@LoyaltyAccount"
+    },
+    {
+      "attributes" : {
+        "name" : "CustomerCard",
+        "semantic_desc" : "Class customer card represents a domain entity.",
+        "normalized_text" : [
+          "Class customer card represents a domain entity",
+          "Class customer card is associated with a single customer objects through role cards",
+          "Class customer card is associated with a collection of multiple transaction objects through role card"
+        ],
+        "isAbstract" : false,
+        "isInterface" : false,
+        "stereotypes" : [
+
+        ],
+        "type" : "Class"
+      },
+      "id" : "CustomerCard"
+    },
+    {
+      "attributes" : {
+        "isDerived" : false,
+        "owner" : "CustomerCard",
+        "name" : "printedName",
+        "type" : "Attribute",
+        "semantic_desc" : "printed name is an attribute of class customer card with data type string. It represents textual information.",
+        "attrType" : "String"
+      },
+      "id" : "printedName@CustomerCard"
+    },
+    {
+      "attributes" : {
+        "isAbstract" : false,
+        "stereotypes" : [
+
+        ],
+        "name" : "Membership",
+        "semantic_desc" : "Class membership represents a domain entity.",
+        "normalized_text" : [
+          "Class membership represents a domain entity",
+          "Class membership is associated with a single loyalty program objects through role membership",
+          "Class membership is associated with a single service level objects through role membership",
+          "Class membership is associated with a single customer card objects through an unnamed role",
+          "Class membership is associated with a single loyalty account objects through an unnamed role"
+        ],
+        "type" : "Class",
+        "isInterface" : false
+      },
+      "id" : "Membership"
+    },
+    {
+      "attributes" : {
+        "owner" : "CustomerCard",
+        "isDerived" : false,
+        "type" : "Attribute",
+        "attrType" : "Color",
+        "name" : "color",
+        "semantic_desc" : "color is an attribute of class customer card with data type color."
+      },
+      "id" : "color@CustomerCard"
+    },
+    {
+      "id" : "Date",
+      "attributes" : {
+        "stereotypes" : [
+
+        ],
+        "isAbstract" : false,
+        "name" : "Date",
+        "isInterface" : false,
+        "type" : "Class",
+        "normalized_text" : [
+          "Class date represents a domain entity"
+        ],
+        "semantic_desc" : "Class date represents a domain entity."
+      }
+    },
+    {
+      "attributes" : {
+        "type" : "Class",
+        "stereotypes" : [
+
+        ],
+        "semantic_desc" : "Class loyalty program represents a domain entity.",
+        "normalized_text" : [
+          "Class loyalty program represents a domain entity",
+          "Class loyalty program is associated with a collection of multiple customer objects through role programs",
+          "Class loyalty program is associated with a collection of multiple program partner objects through role programs",
+          "Class loyalty program is associated with a collection of multiple service level objects through role program",
+          "Class loyalty program is associated with a single membership objects through role program"
+        ],
+        "isInterface" : false,
+        "isAbstract" : false,
+        "name" : "LoyaltyProgram"
+      },
+      "id" : "LoyaltyProgram"
+    },
+    {
+      "id" : "DayOfWeek@Date",
+      "attributes" : {
+        "attrType" : "String",
+        "isDerived" : false,
+        "owner" : "Date",
+        "type" : "Attribute",
+        "semantic_desc" : "day of week is an attribute of class date with data type string. It represents textual information.",
+        "name" : "DayOfWeek"
+      }
+    },
+    {
+      "id" : "age@Customer",
+      "attributes" : {
+        "type" : "Attribute",
+        "owner" : "Customer",
+        "isDerived" : false,
+        "name" : "age",
+        "attrType" : "Integer",
+        "semantic_desc" : "age is an attribute of class customer with data type integer. It represents a numeric value used for calculation."
+      }
+    },
+    {
+      "id" : "ServiceLevel",
+      "attributes" : {
+        "stereotypes" : [
+
+        ],
+        "isAbstract" : false,
+        "semantic_desc" : "Class service level represents a domain entity.",
+        "normalized_text" : [
+          "Class service level represents a domain entity",
+          "Class service level is associated with a single loyalty program objects through role levels",
+          "Class service level is associated with a collection of multiple membership objects through role current level",
+          "Class service level is associated with a collection of multiple service objects through role level"
+        ],
+        "name" : "ServiceLevel",
+        "type" : "Class",
+        "isInterface" : false
+      }
+    },
+    {
+      "id" : "Hour@Date",
+      "attributes" : {
+        "name" : "Hour",
+        "semantic_desc" : "hour is an attribute of class date with data type integer. It represents a numeric value used for calculation.",
+        "type" : "Attribute",
+        "isDerived" : false,
+        "attrType" : "Integer",
+        "owner" : "Date"
+      }
+    },
+    {
+      "id" : "cAge()@Customer",
+      "attributes" : {
+        "owner" : "Customer",
+        "type" : "Operation",
+        "name" : "cAge",
+        "params" : [
+
+        ],
+        "semantic_desc" : "c age is an operation of class customer that accepts inputs no inputs and returns void. It performs an action or state change.",
+        "isDerived" : false
+      }
+    },
+    {
+      "id" : "earn()@LoyaltyAccount",
+      "attributes" : {
+        "params" : [
+
+        ],
+        "owner" : "LoyaltyAccount",
+        "type" : "Operation",
+        "semantic_desc" : "earn is an operation of class loyalty account that accepts inputs no inputs and returns void. It performs an action or state change.",
+        "isDerived" : false,
+        "name" : "earn"
+      }
+    },
+    {
+      "id" : "name@Customer",
+      "attributes" : {
+        "owner" : "Customer",
+        "attrType" : "String",
+        "type" : "Attribute",
+        "isDerived" : false,
+        "name" : "name",
+        "semantic_desc" : "name is an attribute of class customer with data type string. It represents textual information."
+      }
+    },
+    {
+      "id" : "validFrom@CustomerCard",
+      "attributes" : {
+        "name" : "validFrom",
+        "type" : "Attribute",
+        "isDerived" : false,
+        "owner" : "CustomerCard",
+        "semantic_desc" : "valid from is an attribute of class customer card with data type date. It represents a point in time. It is used for unique identification.",
+        "attrType" : "Date"
+      }
+    },
+    {
+      "attributes" : {
+        "stereotypes" : [
+
+        ],
+        "name" : "Customer",
+        "type" : "Class",
+        "isAbstract" : false,
+        "normalized_text" : [
+          "Class customer represents a domain entity",
+          "Class customer is associated with a collection of multiple loyalty program objects through role participants",
+          "Class customer is associated with a collection of multiple customer card objects through role owner"
+        ],
+        "semantic_desc" : "Class customer represents a domain entity.",
+        "isInterface" : false
+      },
+      "id" : "Customer"
+    },
+    {
+      "id" : "name@LoyaltyProgram",
+      "attributes" : {
+        "type" : "Attribute",
+        "isDerived" : false,
+        "semantic_desc" : "name is an attribute of class loyalty program with data type string. It represents textual information.",
+        "owner" : "LoyaltyProgram",
+        "attrType" : "String",
+        "name" : "name"
+      }
+    },
+    {
+      "id" : "programs()@Transaction",
+      "attributes" : {
+        "params" : [
+
+        ],
+        "type" : "Operation",
+        "isDerived" : false,
+        "owner" : "Transaction",
+        "name" : "programs",
+        "semantic_desc" : "programs is an operation of class transaction that accepts inputs no inputs and returns void. It performs an action or state change."
+      }
+    },
+    {
+      "id" : "amount@Transaction",
+      "attributes" : {
+        "owner" : "Transaction",
+        "name" : "amount",
+        "isDerived" : false,
+        "semantic_desc" : "amount is an attribute of class transaction with data type integer. It represents a numeric value used for calculation.",
+        "attrType" : "Integer",
+        "type" : "Attribute"
+      }
+    },
+    {
+      "id" : "point@Transaction",
+      "attributes" : {
+        "name" : "point",
+        "type" : "Attribute",
+        "semantic_desc" : "point is an attribute of class transaction with data type integer. It represents a numeric value used for calculation.",
+        "isDerived" : false,
+        "owner" : "Transaction",
+        "attrType" : "Integer"
+      }
+    },
+    {
+      "id" : "serviceNr@Service",
+      "attributes" : {
+        "isDerived" : false,
+        "semantic_desc" : "service nr is an attribute of class service with data type integer. It represents a numeric value used for calculation.",
+        "attrType" : "Integer",
+        "owner" : "Service",
+        "name" : "serviceNr",
+        "type" : "Attribute"
+      }
+    },
+    {
+      "attributes" : {
+        "semantic_desc" : "second is an attribute of class date with data type integer. It represents a numeric value used for calculation.",
+        "type" : "Attribute",
+        "attrType" : "Integer",
+        "owner" : "Date",
+        "name" : "Second",
+        "isDerived" : false
+      },
+      "id" : "Second@Date"
+    },
+    {
+      "id" : "isMale@Customer",
+      "attributes" : {
+        "type" : "Attribute",
+        "owner" : "Customer",
+        "isDerived" : false,
+        "semantic_desc" : "is male is an attribute of class customer with data type boolean. It represents a logical state or flag.",
+        "attrType" : "Boolean",
+        "name" : "isMale"
+      }
+    },
+    {
+      "id" : "points@LoyaltyAccount",
+      "attributes" : {
+        "owner" : "LoyaltyAccount",
+        "name" : "points",
+        "isDerived" : false,
+        "semantic_desc" : "points is an attribute of class loyalty account with data type integer. It represents a numeric value used for calculation.",
+        "type" : "Attribute",
+        "attrType" : "Integer"
+      }
+    },
+    {
+      "attributes" : {
+        "isDerived" : false,
+        "name" : "dateOfBirth",
+        "semantic_desc" : "date of birth is an attribute of class customer with data type integer. It represents a numeric value used for calculation.",
+        "owner" : "Customer",
+        "attrType" : "Integer",
+        "type" : "Attribute"
+      },
+      "id" : "dateOfBirth@Customer"
+    },
+    {
+      "id" : "pointsBurned@Service",
+      "attributes" : {
+        "type" : "Attribute",
+        "semantic_desc" : "points burned is an attribute of class service with data type integer. It represents a numeric value used for calculation.",
+        "name" : "pointsBurned",
+        "isDerived" : false,
+        "attrType" : "Integer",
+        "owner" : "Service"
+      }
+    },
+    {
+      "id" : "description@Service",
+      "attributes" : {
+        "isDerived" : false,
+        "attrType" : "String",
+        "owner" : "Service",
+        "semantic_desc" : "description is an attribute of class service with data type string. It represents textual information.",
+        "type" : "Attribute",
+        "name" : "description"
+      }
+    },
+    {
+      "attributes" : {
+        "name" : "enroll",
+        "params" : [
+
+        ],
+        "isDerived" : false,
+        "semantic_desc" : "enroll is an operation of class loyalty program that accepts inputs no inputs and returns void. It performs an action or state change.",
+        "owner" : "LoyaltyProgram",
+        "type" : "Operation"
+      },
+      "id" : "enroll()@LoyaltyProgram"
+    },
+    {
+      "attributes" : {
+        "type" : "Attribute",
+        "isDerived" : false,
+        "semantic_desc" : "day is an attribute of class date with data type integer. It represents a numeric value used for calculation.",
+        "owner" : "Date",
+        "name" : "Day",
+        "attrType" : "Integer"
+      },
+      "id" : "Day@Date"
+    },
+    {
+      "attributes" : {
+        "isAbstract" : false,
+        "name" : "Service",
+        "type" : "Class",
+        "isInterface" : false,
+        "normalized_text" : [
+          "Class service represents a domain entity",
+          "Class service is associated with a single program partner objects through role delivered services",
+          "Class service is associated with a single service level objects through role available services",
+          "Class service is associated with a collection of multiple transaction objects through role generated by"
+        ],
+        "semantic_desc" : "Class service represents a domain entity.",
+        "stereotypes" : [
+
+        ]
+      },
+      "id" : "Service"
+    }
+  ],
   "edges" : [
     {
-      "source" : "Flight",
-      "destination" : "departTime@Flight",
+      "destination" : "Year@Date",
+      "key" : "C734F86E-B7FE-42C8-AC7C-BCDA45221A21",
       "attributes" : {
         "type" : "OWNS_ATTR"
       },
-      "key" : "141FE7B5-4D10-4EBB-A0B5-1D1D11D7310B"
+      "source" : "Date"
     },
     {
-      "key" : "A8D9020D-27FA-456C-8778-F19215364ED7",
-      "destination" : "arrivalTime@Flight",
-      "source" : "Flight",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "Month@Date",
+      "key" : "3AF946E1-CEE3-4612-9341-11D4CCC4F0ED",
+      "source" : "Date"
+    },
+    {
+      "key" : "AB8218B1-02DA-41E6-9305-86F759DFE390",
+      "source" : "Date",
+      "destination" : "Day@Date",
       "attributes" : {
         "type" : "OWNS_ATTR"
       }
     },
     {
-      "key" : "D9C7A4B6-27AF-4BC0-9FBD-22E3550872D4",
-      "source" : "Flight",
-      "destination" : "duration@Flight",
+      "source" : "Date",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "C955551C-F085-4DB5-B774-248673F53A61",
+      "destination" : "Hour@Date"
+    },
+    {
+      "source" : "Date",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "6FACE977-AAFA-4F25-B16E-D1C5CB665BE5",
+      "destination" : "Minute@Date"
+    },
+    {
+      "source" : "Date",
+      "key" : "0159FFDD-EEE5-427E-8B00-E082B9455A39",
+      "destination" : "Second@Date",
       "attributes" : {
         "type" : "OWNS_ATTR"
       }
     },
     {
-      "key" : "3AD39ED4-B839-471F-A815-4E12BB9E3401",
-      "destination" : "maxNrPassenger@Flight",
-      "source" : "Flight",
+      "source" : "Date",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "Now@Date",
+      "key" : "C1C8C295-65AC-46F0-B696-9F29BD319C0F"
+    },
+    {
+      "source" : "Date",
+      "key" : "41ED72A5-F63A-41E6-B237-1E97B5749674",
+      "destination" : "DayOfWeek@Date",
       "attributes" : {
         "type" : "OWNS_ATTR"
       }
     },
     {
-      "key" : "e0",
-      "source" : "Flight",
-      "destination" : "Airport",
+      "destination" : "numberOfCustomers@ProgramPartner",
+      "source" : "ProgramPartner",
       "attributes" : {
-        "roleDst" : "origin",
-        "id" : "e0",
-        "semantic_desc" : "Class flight is associated with a single airport objects through role departing flights.",
-        "multSrc" : "0..*",
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "457A41B9-B959-4091-A9A9-35568EB510E1"
+    },
+    {
+      "destination" : "name@ProgramPartner",
+      "source" : "ProgramPartner",
+      "key" : "E89BE104-0CA2-425C-A806-1A94A67470A8",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "key" : "e1",
+      "source" : "ProgramPartner",
+      "destination" : "LoyaltyProgram",
+      "attributes" : {
+        "multDst" : "1..*",
         "aggKind" : "none",
+        "id" : "e1",
+        "semantic_desc" : "Class program partner is associated with a collection of multiple loyalty program objects through role partners.",
         "type" : "ASSOC",
-        "roleSrc" : "departingFlights",
+        "roleDst" : "programs",
+        "multSrc" : "1..*",
         "navigability" : "bi",
-        "multDst" : "1..1"
+        "roleSrc" : "partners"
       }
     },
     {
-      "source" : "Flight",
-      "destination" : "Airport",
       "attributes" : {
-        "id" : "e1",
+        "aggKind" : "none",
+        "id" : "e5",
         "type" : "ASSOC",
-        "roleDst" : "destination",
-        "multSrc" : "0..*",
-        "multDst" : "1..1",
+        "roleDst" : "deliveredServices",
+        "semantic_desc" : "Class program partner is associated with a collection of multiple service objects through role partner.",
+        "roleSrc" : "partner",
+        "multSrc" : "0..1",
         "navigability" : "bi",
-        "roleSrc" : "arrivingFlights",
-        "semantic_desc" : "Class flight is associated with a single airport objects through role arriving flights.",
+        "multDst" : "0..*"
+      },
+      "key" : "e5",
+      "source" : "ProgramPartner",
+      "destination" : "Service"
+    },
+    {
+      "source" : "LoyaltyAccount",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "points@LoyaltyAccount",
+      "key" : "BE4A20BC-0CCB-404C-8F02-D5D0ED89C815"
+    },
+    {
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "BA97EA58-7173-4A13-861E-12DD15FBC37C",
+      "source" : "LoyaltyAccount",
+      "destination" : "numbers@LoyaltyAccount"
+    },
+    {
+      "destination" : "earn()@LoyaltyAccount",
+      "source" : "LoyaltyAccount",
+      "key" : "5D7D0A20-1470-4519-8C20-5F510D2CDCAB",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "destination" : "burn()@LoyaltyAccount",
+      "key" : "B3A52EED-5E06-4666-BC40-8B577B629680",
+      "source" : "LoyaltyAccount",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "key" : "861F5A10-B81A-4D65-A73C-8C662EFBC3D9",
+      "source" : "LoyaltyAccount",
+      "destination" : "isEmpty()@LoyaltyAccount",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "attributes" : {
+        "semantic_desc" : "Class loyalty account is associated with a collection of multiple transaction objects through role account.",
+        "multDst" : "0..*",
+        "navigability" : "bi",
+        "multSrc" : "1..1",
+        "roleSrc" : "account",
+        "type" : "ASSOC",
+        "id" : "e11",
+        "roleDst" : "transactions",
         "aggKind" : "none"
+      },
+      "destination" : "Transaction",
+      "key" : "e11",
+      "source" : "LoyaltyAccount"
+    },
+    {
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "00DB0A05-73CE-4873-B932-6BBC6398C0C5",
+      "source" : "LoyaltyProgram",
+      "destination" : "name@LoyaltyProgram"
+    },
+    {
+      "key" : "9FCF4AC8-1ABC-4361-BA94-8CCF8D1FA010",
+      "destination" : "enroll()@LoyaltyProgram",
+      "source" : "LoyaltyProgram",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "attributes" : {
+        "type" : "OWNS_OP"
+      },
+      "key" : "87BD9D92-FAC2-4C90-9CE2-AA69B5DC0D4F",
+      "source" : "LoyaltyProgram",
+      "destination" : "getServices()@LoyaltyProgram"
+    },
+    {
+      "destination" : "Customer",
+      "source" : "LoyaltyProgram",
+      "attributes" : {
+        "navigability" : "bi",
+        "id" : "e0",
+        "roleSrc" : "programs",
+        "multDst" : "0..*",
+        "multSrc" : "0..*",
+        "roleDst" : "participants",
+        "semantic_desc" : "Class loyalty program is associated with a collection of multiple customer objects through role programs.",
+        "type" : "ASSOC",
+        "aggKind" : "none"
+      },
+      "key" : "e0"
+    },
+    {
+      "source" : "LoyaltyProgram",
+      "destination" : "ProgramPartner",
+      "attributes" : {
+        "aggKind" : "none",
+        "navigability" : "bi",
+        "roleSrc" : "programs",
+        "multSrc" : "1..*",
+        "roleDst" : "partners",
+        "id" : "e1",
+        "semantic_desc" : "Class loyalty program is associated with a collection of multiple program partner objects through role programs.",
+        "type" : "ASSOC",
+        "multDst" : "1..*"
       },
       "key" : "e1"
     },
     {
+      "destination" : "ServiceLevel",
+      "source" : "LoyaltyProgram",
       "attributes" : {
+        "semantic_desc" : "Class loyalty program is associated with a collection of multiple service level objects through role program.",
+        "multDst" : "1..*",
+        "roleSrc" : "program",
+        "roleDst" : "levels",
+        "multSrc" : "1..1",
         "type" : "ASSOC",
-        "semantic_desc" : "Class flight is associated with a single airline objects through role flights.",
-        "roleSrc" : "flights",
         "navigability" : "bi",
-        "multDst" : "1..1",
         "id" : "e2",
-        "multSrc" : "0..*",
-        "roleDst" : "airline",
         "aggKind" : "none"
       },
-      "source" : "Flight",
-      "destination" : "Airline",
       "key" : "e2"
     },
     {
       "attributes" : {
-        "semantic_desc" : "Class flight is associated with a collection of multiple passenger objects through role flight.",
-        "multSrc" : "1..1",
-        "id" : "e3",
         "aggKind" : "none",
-        "roleDst" : "passengers",
-        "navigability" : "bi",
         "type" : "ASSOC",
-        "multDst" : "0..*",
-        "roleSrc" : "flight"
+        "roleDst" : "membership",
+        "id" : "e3",
+        "multDst" : "0..1",
+        "multSrc" : "0..1",
+        "semantic_desc" : "Class loyalty program is associated with a single membership objects through role program.",
+        "roleSrc" : "program",
+        "navigability" : "bi"
       },
-      "destination" : "Passenger",
+      "destination" : "Membership",
       "key" : "e3",
-      "source" : "Flight"
+      "source" : "LoyaltyProgram"
     },
     {
       "attributes" : {
         "type" : "OWNS_ATTR"
       },
-      "destination" : "minAge@Passenger",
-      "key" : "403083E6-5A90-4DBC-B75D-EF02D106DBC5",
-      "source" : "Passenger"
+      "source" : "Customer",
+      "key" : "AA8E66F7-EA78-4A8C-A6CB-29AFECAFD566",
+      "destination" : "name@Customer"
     },
     {
-      "key" : "4947EBAE-6F0B-4013-935F-F7EFA22F3937",
+      "destination" : "title@Customer",
+      "source" : "Customer",
+      "key" : "F5CBDC2B-36F7-4210-9CF0-CABFB231567C",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "key" : "FFA4AB48-8387-4826-9FB4-06D22EB94BBF",
+      "source" : "Customer",
+      "destination" : "isMale@Customer",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "key" : "F1109461-0D9B-4694-B823-6B19688A90E6",
+      "source" : "Customer",
+      "destination" : "dateOfBirth@Customer",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "source" : "Customer",
       "attributes" : {
         "type" : "OWNS_ATTR"
       },
-      "source" : "Passenger",
-      "destination" : "age@Passenger"
+      "key" : "39B7C9F9-A3D0-448B-9D2B-E35339E81637",
+      "destination" : "age@Customer"
     },
     {
-      "source" : "Passenger",
-      "key" : "3EDC7284-FF2A-416B-B67C-E0D607B1DE07",
-      "attributes" : {
-        "type" : "OWNS_ATTR"
-      },
-      "destination" : "needsAssistance@Passenger"
-    },
-    {
-      "key" : "30F658C2-7AA2-4F3E-BB97-214C457A0083",
-      "source" : "Passenger",
+      "key" : "26632E80-3ABE-47BA-BE7F-B38B62024403",
+      "source" : "Customer",
       "attributes" : {
         "type" : "OWNS_OP"
       },
-      "destination" : "book(f: Flight)@Passenger"
+      "destination" : "cAge()@Customer"
     },
     {
       "attributes" : {
-        "semantic_desc" : "Class passenger is associated with a single flight objects through role passengers.",
-        "multDst" : "1..1",
         "multSrc" : "0..*",
-        "navigability" : "bi",
-        "roleSrc" : "passengers",
-        "aggKind" : "none",
         "type" : "ASSOC",
-        "roleDst" : "flight",
-        "id" : "e3"
+        "roleSrc" : "participants",
+        "multDst" : "0..*",
+        "navigability" : "bi",
+        "roleDst" : "programs",
+        "semantic_desc" : "Class customer is associated with a collection of multiple loyalty program objects through role participants.",
+        "aggKind" : "none",
+        "id" : "e0"
       },
-      "source" : "Passenger",
-      "destination" : "Flight",
-      "key" : "e3"
+      "key" : "e0",
+      "source" : "Customer",
+      "destination" : "LoyaltyProgram"
     },
     {
-      "source" : "Passenger",
-      "destination" : "Airline",
+      "destination" : "CustomerCard",
+      "source" : "Customer",
       "key" : "e4",
       "attributes" : {
-        "roleSrc" : "CEO",
-        "type" : "ASSOC",
-        "semantic_desc" : "Class passenger is associated with a single airline objects through role ceo.",
+        "roleDst" : "cards",
+        "multDst" : "0..*",
         "aggKind" : "none",
-        "multDst" : "0..1",
-        "roleDst" : "airline",
+        "roleSrc" : "owner",
+        "semantic_desc" : "Class customer is associated with a collection of multiple customer card objects through role owner.",
+        "multSrc" : "1..1",
         "id" : "e4",
-        "navigability" : "bi",
-        "multSrc" : "0..1"
+        "type" : "ASSOC",
+        "navigability" : "bi"
       }
     },
     {
-      "key" : "7496E46A-E43A-4A11-9569-333F08C72FD9",
+      "key" : "02ACCE8A-F19A-4F9A-85D9-710BB3CD5232",
+      "destination" : "valid@CustomerCard",
       "attributes" : {
         "type" : "OWNS_ATTR"
       },
-      "destination" : "name@Airport",
-      "source" : "Airport"
+      "source" : "CustomerCard"
     },
     {
-      "destination" : "Flight",
-      "key" : "e0",
+      "key" : "0DD1518F-5CDA-4152-AE79-779E4BC3F9E7",
       "attributes" : {
-        "navigability" : "bi",
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "validFrom@CustomerCard",
+      "source" : "CustomerCard"
+    },
+    {
+      "key" : "A08E43A5-6A5F-45CE-BA7D-6CB2AB15EB51",
+      "destination" : "goodThru@CustomerCard",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "source" : "CustomerCard"
+    },
+    {
+      "destination" : "color@CustomerCard",
+      "key" : "2CB7A041-0E43-4880-899B-5A162048809F",
+      "source" : "CustomerCard",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "destination" : "printedName@CustomerCard",
+      "key" : "9765A0E0-DB00-4DA8-8EDD-D7A70BDF9A96",
+      "source" : "CustomerCard"
+    },
+    {
+      "destination" : "Customer",
+      "source" : "CustomerCard",
+      "key" : "e4",
+      "attributes" : {
+        "semantic_desc" : "Class customer card is associated with a single customer objects through role cards.",
+        "roleSrc" : "cards",
+        "multDst" : "1..1",
+        "id" : "e4",
+        "roleDst" : "owner",
+        "multSrc" : "0..*",
         "aggKind" : "none",
-        "id" : "e0",
+        "navigability" : "bi",
+        "type" : "ASSOC"
+      }
+    },
+    {
+      "source" : "CustomerCard",
+      "destination" : "Transaction",
+      "attributes" : {
+        "semantic_desc" : "Class customer card is associated with a collection of multiple transaction objects through role card.",
+        "roleSrc" : "card",
+        "navigability" : "bi",
         "multDst" : "0..*",
-        "semantic_desc" : "Class airport is associated with a collection of multiple flight objects through role origin.",
-        "roleSrc" : "origin",
+        "roleDst" : "transactions",
+        "id" : "e10",
+        "aggKind" : "none",
         "multSrc" : "1..1",
-        "roleDst" : "departingFlights",
         "type" : "ASSOC"
       },
-      "source" : "Airport"
+      "key" : "e10"
     },
     {
-      "source" : "Airport",
-      "destination" : "Flight",
-      "key" : "e1",
+      "source" : "Service",
+      "destination" : "condition@Service",
       "attributes" : {
-        "roleSrc" : "destination",
-        "roleDst" : "arrivingFlights",
-        "aggKind" : "none",
-        "navigability" : "bi",
-        "id" : "e1",
-        "multSrc" : "1..1",
-        "type" : "ASSOC",
-        "multDst" : "0..*",
-        "semantic_desc" : "Class airport is associated with a collection of multiple flight objects through role destination."
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "8EDF575C-E0D7-42B3-B607-797B3818C7F8"
+    },
+    {
+      "destination" : "pointsEarned@Service",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "1EE51B77-2373-471E-86AF-6FFB67D35033",
+      "source" : "Service"
+    },
+    {
+      "destination" : "pointsBurned@Service",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "source" : "Service",
+      "key" : "62714DAF-853E-4E75-9E7B-E14BB6265DB9"
+    },
+    {
+      "key" : "0142C3C4-FB92-4848-B770-71AFAA971BAC",
+      "source" : "Service",
+      "destination" : "description@Service",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
       }
     },
     {
-      "destination" : "name@Airline",
-      "source" : "Airline",
-      "key" : "539E03A4-F050-49E5-A93E-48A64E95CBC1",
+      "source" : "Service",
+      "destination" : "serviceNr@Service",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "24D9A419-9858-46A1-9F5D-0F3DF3239B07"
+    },
+    {
+      "source" : "Service",
+      "key" : "e5",
+      "destination" : "ProgramPartner",
+      "attributes" : {
+        "roleSrc" : "deliveredServices",
+        "semantic_desc" : "Class service is associated with a single program partner objects through role delivered services.",
+        "id" : "e5",
+        "navigability" : "bi",
+        "multSrc" : "0..*",
+        "type" : "ASSOC",
+        "aggKind" : "none",
+        "multDst" : "0..1",
+        "roleDst" : "partner"
+      }
+    },
+    {
+      "attributes" : {
+        "type" : "ASSOC",
+        "semantic_desc" : "Class service is associated with a single service level objects through role available services.",
+        "roleDst" : "level",
+        "multSrc" : "0..*",
+        "aggKind" : "none",
+        "id" : "e7",
+        "navigability" : "bi",
+        "roleSrc" : "availableServices",
+        "multDst" : "0..1"
+      },
+      "key" : "e7",
+      "destination" : "ServiceLevel",
+      "source" : "Service"
+    },
+    {
+      "attributes" : {
+        "type" : "ASSOC",
+        "roleSrc" : "generatedBy",
+        "multDst" : "0..*",
+        "semantic_desc" : "Class service is associated with a collection of multiple transaction objects through role generated by.",
+        "multSrc" : "0..1",
+        "roleDst" : "transactions",
+        "navigability" : "bi",
+        "id" : "e12",
+        "aggKind" : "none"
+      },
+      "destination" : "Transaction",
+      "key" : "e12",
+      "source" : "Service"
+    },
+    {
+      "source" : "Transaction",
+      "destination" : "date@Transaction",
+      "key" : "DBDB4E8B-37ED-4065-9FAA-9C17B35E3078",
       "attributes" : {
         "type" : "OWNS_ATTR"
       }
     },
     {
       "attributes" : {
-        "multDst" : "0..*",
+        "type" : "OWNS_ATTR"
+      },
+      "source" : "Transaction",
+      "destination" : "amount@Transaction",
+      "key" : "028E3481-4A6A-4C25-A812-853B94A8B38E"
+    },
+    {
+      "destination" : "point@Transaction",
+      "key" : "CADA114A-E72F-4D32-A1DA-8902A9A63941",
+      "source" : "Transaction",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      }
+    },
+    {
+      "key" : "3DD4150E-3CEB-40CF-8D88-EE16234E0785",
+      "source" : "Transaction",
+      "destination" : "programs()@Transaction",
+      "attributes" : {
+        "type" : "OWNS_OP"
+      }
+    },
+    {
+      "attributes" : {
+        "roleSrc" : "transactions",
+        "multDst" : "1..1",
+        "roleDst" : "card",
+        "semantic_desc" : "Class transaction is associated with a single customer card objects through role transactions.",
+        "multSrc" : "0..*",
+        "type" : "ASSOC",
+        "navigability" : "bi",
+        "aggKind" : "none",
+        "id" : "e10"
+      },
+      "key" : "e10",
+      "source" : "Transaction",
+      "destination" : "CustomerCard"
+    },
+    {
+      "source" : "Transaction",
+      "key" : "e11",
+      "destination" : "LoyaltyAccount",
+      "attributes" : {
+        "multSrc" : "0..*",
+        "roleSrc" : "transactions",
+        "type" : "ASSOC",
+        "multDst" : "1..1",
+        "id" : "e11",
+        "roleDst" : "account",
+        "aggKind" : "none",
+        "navigability" : "bi",
+        "semantic_desc" : "Class transaction is associated with a single loyalty account objects through role transactions."
+      }
+    },
+    {
+      "key" : "e12",
+      "source" : "Transaction",
+      "attributes" : {
+        "navigability" : "bi",
+        "multDst" : "0..1",
+        "id" : "e12",
+        "multSrc" : "0..*",
+        "roleDst" : "generatedBy",
+        "aggKind" : "none",
+        "type" : "ASSOC",
+        "roleSrc" : "transactions",
+        "semantic_desc" : "Class transaction is associated with a single service objects through role transactions."
+      },
+      "destination" : "Service"
+    },
+    {
+      "source" : "ServiceLevel",
+      "attributes" : {
+        "type" : "OWNS_ATTR"
+      },
+      "key" : "CA8F1EF5-DA13-4937-9CB7-5E1AC21803C3",
+      "destination" : "name@ServiceLevel"
+    },
+    {
+      "destination" : "LoyaltyProgram",
+      "source" : "ServiceLevel",
+      "attributes" : {
+        "type" : "ASSOC",
+        "roleDst" : "program",
+        "roleSrc" : "levels",
+        "semantic_desc" : "Class service level is associated with a single loyalty program objects through role levels.",
         "navigability" : "bi",
         "id" : "e2",
-        "roleSrc" : "airline",
-        "multSrc" : "1..1",
-        "type" : "ASSOC",
-        "semantic_desc" : "Class airline is associated with a collection of multiple flight objects through role airline.",
-        "roleDst" : "flights",
-        "aggKind" : "none"
+        "multDst" : "1..1",
+        "aggKind" : "none",
+        "multSrc" : "1..*"
       },
-      "destination" : "Flight",
-      "source" : "Airline",
       "key" : "e2"
     },
     {
+      "source" : "ServiceLevel",
+      "key" : "e6",
+      "destination" : "Membership",
       "attributes" : {
-        "id" : "e4",
-        "roleDst" : "CEO",
-        "semantic_desc" : "Class airline is associated with a single passenger objects through role airline.",
-        "multDst" : "0..1",
-        "roleSrc" : "airline",
+        "multDst" : "0..*",
+        "navigability" : "bi",
+        "roleDst" : "membership",
+        "aggKind" : "none",
+        "multSrc" : "1..1",
+        "roleSrc" : "currentLevel",
+        "semantic_desc" : "Class service level is associated with a collection of multiple membership objects through role current level.",
+        "type" : "ASSOC",
+        "id" : "e6"
+      }
+    },
+    {
+      "key" : "e7",
+      "attributes" : {
+        "navigability" : "bi",
+        "id" : "e7",
+        "multSrc" : "0..1",
+        "roleSrc" : "level",
         "type" : "ASSOC",
         "aggKind" : "none",
-        "navigability" : "bi",
-        "multSrc" : "0..1"
+        "roleDst" : "availableServices",
+        "semantic_desc" : "Class service level is associated with a collection of multiple service objects through role level.",
+        "multDst" : "0..*"
       },
-      "destination" : "Passenger",
-      "source" : "Airline",
-      "key" : "e4"
+      "source" : "ServiceLevel",
+      "destination" : "Service"
+    },
+    {
+      "destination" : "LoyaltyProgram",
+      "attributes" : {
+        "multSrc" : "0..1",
+        "aggKind" : "none",
+        "roleSrc" : "membership",
+        "multDst" : "0..1",
+        "semantic_desc" : "Class membership is associated with a single loyalty program objects through role membership.",
+        "roleDst" : "program",
+        "id" : "e3",
+        "type" : "ASSOC",
+        "navigability" : "bi"
+      },
+      "source" : "Membership",
+      "key" : "e3"
+    },
+    {
+      "source" : "Membership",
+      "key" : "e6",
+      "destination" : "ServiceLevel",
+      "attributes" : {
+        "multSrc" : "0..*",
+        "semantic_desc" : "Class membership is associated with a single service level objects through role membership.",
+        "type" : "ASSOC",
+        "navigability" : "bi",
+        "roleSrc" : "membership",
+        "roleDst" : "currentLevel",
+        "id" : "e6",
+        "multDst" : "1..1",
+        "aggKind" : "none"
+      }
+    },
+    {
+      "key" : "e8",
+      "source" : "Membership",
+      "destination" : "CustomerCard",
+      "attributes" : {
+        "aggKind" : "none",
+        "multSrc" : "0..*",
+        "roleDst" : "card",
+        "navigability" : "src→dst",
+        "multDst" : "1..1",
+        "type" : "ASSOC",
+        "semantic_desc" : "Class membership is associated with a single customer card objects through an unnamed role.",
+        "id" : "e8"
+      }
+    },
+    {
+      "attributes" : {
+        "semantic_desc" : "Class membership is associated with a single loyalty account objects through an unnamed role.",
+        "type" : "ASSOC",
+        "id" : "e9",
+        "aggKind" : "none",
+        "multDst" : "0..1",
+        "roleDst" : "account",
+        "navigability" : "src→dst",
+        "multSrc" : "0..*"
+      },
+      "source" : "Membership",
+      "key" : "e9",
+      "destination" : "LoyaltyAccount"
+    },
+    {
+      "source" : "goodThru@CustomerCard",
+      "attributes" : {
+        "type" : "HAS_TYPE"
+      },
+      "destination" : "Date",
+      "key" : "CEF191E4-344A-437F-BCDB-582FA4E9BB77"
+    },
+    {
+      "source" : "validFrom@CustomerCard",
+      "destination" : "Date",
+      "attributes" : {
+        "type" : "HAS_TYPE"
+      },
+      "key" : "EAD81E7D-EBA0-475B-A911-365193ED0254"
     }
   ],
   "metadata" : {
     "warnings" : [
 
     ]
-  },
-  "nodes" : [
-    {
-      "attributes" : {
-        "normalized_text" : [
-          "Class passenger represents a domain entity",
-          "Class passenger is associated with a single flight objects through role passengers",
-          "Class passenger is associated with a single airline objects through role ceo"
-        ],
-        "isInterface" : false,
-        "stereotypes" : [
-
-        ],
-        "type" : "Class",
-        "isAbstract" : false,
-        "semantic_desc" : "Class passenger represents a domain entity.",
-        "name" : "Passenger"
-      },
-      "id" : "Passenger"
-    },
-    {
-      "attributes" : {
-        "isDerived" : false,
-        "name" : "arrivalTime",
-        "owner" : "Flight",
-        "attrType" : "Date",
-        "type" : "Attribute",
-        "semantic_desc" : "arrival time is an attribute of class flight with data type date. It represents a point in time."
-      },
-      "id" : "arrivalTime@Flight"
-    },
-    {
-      "attributes" : {
-        "name" : "name",
-        "attrType" : "String",
-        "isDerived" : false,
-        "owner" : "Airport",
-        "type" : "Attribute",
-        "semantic_desc" : "name is an attribute of class airport with data type string. It represents textual information."
-      },
-      "id" : "name@Airport"
-    },
-    {
-      "id" : "maxNrPassenger@Flight",
-      "attributes" : {
-        "type" : "Attribute",
-        "attrType" : "Integer",
-        "name" : "maxNrPassenger",
-        "isDerived" : false,
-        "semantic_desc" : "max nr passenger is an attribute of class flight with data type integer. It represents a numeric value used for calculation.",
-        "owner" : "Flight"
-      }
-    },
-    {
-      "attributes" : {
-        "stereotypes" : [
-
-        ],
-        "isInterface" : false,
-        "type" : "Class",
-        "semantic_desc" : "Class flight represents a domain entity.",
-        "name" : "Flight",
-        "isAbstract" : false,
-        "normalized_text" : [
-          "Class flight represents a domain entity",
-          "Class flight is associated with a single airport objects through role departing flights",
-          "Class flight is associated with a single airport objects through role arriving flights",
-          "Class flight is associated with a single airline objects through role flights",
-          "Class flight is associated with a collection of multiple passenger objects through role flight"
-        ]
-      },
-      "id" : "Flight"
-    },
-    {
-      "attributes" : {
-        "isDerived" : false,
-        "owner" : "Passenger",
-        "attrType" : "Integer",
-        "type" : "Attribute",
-        "name" : "minAge",
-        "semantic_desc" : "min age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation."
-      },
-      "id" : "minAge@Passenger"
-    },
-    {
-      "attributes" : {
-        "semantic_desc" : "name is an attribute of class airline with data type string. It represents textual information.",
-        "name" : "name",
-        "owner" : "Airline",
-        "type" : "Attribute",
-        "isDerived" : false,
-        "attrType" : "String"
-      },
-      "id" : "name@Airline"
-    },
-    {
-      "id" : "departTime@Flight",
-      "attributes" : {
-        "semantic_desc" : "depart time is an attribute of class flight with data type date. It represents a point in time.",
-        "attrType" : "Date",
-        "type" : "Attribute",
-        "owner" : "Flight",
-        "isDerived" : false,
-        "name" : "departTime"
-      }
-    },
-    {
-      "id" : "duration@Flight",
-      "attributes" : {
-        "owner" : "Flight",
-        "semantic_desc" : "duration is an attribute of class flight with data type date. It represents a point in time.",
-        "type" : "Attribute",
-        "isDerived" : false,
-        "name" : "duration",
-        "attrType" : "Date"
-      }
-    },
-    {
-      "id" : "Airline",
-      "attributes" : {
-        "stereotypes" : [
-
-        ],
-        "isAbstract" : false,
-        "semantic_desc" : "Class airline represents a domain entity.",
-        "type" : "Class",
-        "normalized_text" : [
-          "Class airline represents a domain entity",
-          "Class airline is associated with a collection of multiple flight objects through role airline",
-          "Class airline is associated with a single passenger objects through role airline"
-        ],
-        "isInterface" : false,
-        "name" : "Airline"
-      }
-    },
-    {
-      "id" : "Airport",
-      "attributes" : {
-        "isAbstract" : false,
-        "isInterface" : false,
-        "name" : "Airport",
-        "semantic_desc" : "Class airport represents a domain entity.",
-        "type" : "Class",
-        "normalized_text" : [
-          "Class airport represents a domain entity",
-          "Class airport is associated with a collection of multiple flight objects through role origin",
-          "Class airport is associated with a collection of multiple flight objects through role destination"
-        ],
-        "stereotypes" : [
-
-        ]
-      }
-    },
-    {
-      "id" : "age@Passenger",
-      "attributes" : {
-        "type" : "Attribute",
-        "attrType" : "Integer",
-        "owner" : "Passenger",
-        "name" : "age",
-        "semantic_desc" : "age is an attribute of class passenger with data type integer. It represents a numeric value used for calculation.",
-        "isDerived" : false
-      }
-    },
-    {
-      "attributes" : {
-        "owner" : "Passenger",
-        "semantic_desc" : "book is an operation of class passenger that accepts inputs f of type flight and returns void. It performs an action or state change.",
-        "params" : [
-          {
-            "name" : "f",
-            "type" : "Flight"
-          }
-        ],
-        "type" : "Operation",
-        "isDerived" : false,
-        "name" : "book"
-      },
-      "id" : "book(f: Flight)@Passenger"
-    },
-    {
-      "attributes" : {
-        "type" : "Attribute",
-        "isDerived" : false,
-        "attrType" : "Boolean",
-        "owner" : "Passenger",
-        "name" : "needsAssistance",
-        "semantic_desc" : "needs assistance is an attribute of class passenger with data type boolean. It represents a logical state or flag."
-      },
-      "id" : "needsAssistance@Passenger"
-    }
-  ]
+  }
 }
